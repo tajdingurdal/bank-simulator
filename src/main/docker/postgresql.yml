@@ -1,0 +1,17 @@
+name: solid-soft-bank
+services:
+  postgresql:
+    container_name: postgresql
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=solid-bank
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U $${POSTGRES_USER}' ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - 5432:5432
