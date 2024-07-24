@@ -8,8 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "pre_checkout")
-public class PreCheckoutEntity {
+@Table(name = "authenticate")
+public class AuthenticateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +36,14 @@ public class PreCheckoutEntity {
     @Column(name = "amount")
     private double amount;
 
-    public PreCheckoutEntity() {
+    @Column(name = "authenticate")
+    private boolean authenticate;
+
+    public AuthenticateEntity() {
     }
 
-    public PreCheckoutEntity(final double amount, final String failedRedirectURL, final String successRedirectURL, final String currency,
-                             final String resultMessage, final String solidBankTransactionCode, final String merchantTransactionCode) {
+    public AuthenticateEntity(final double amount, final String failedRedirectURL, final String successRedirectURL, final String currency,
+                              final String resultMessage, final String solidBankTransactionCode, final String merchantTransactionCode, boolean authenticate) {
         this.amount = amount;
         this.failedRedirectURL = failedRedirectURL;
         this.successRedirectURL = successRedirectURL;
@@ -48,6 +51,7 @@ public class PreCheckoutEntity {
         this.resultMessage = resultMessage;
         this.solidBankTransactionCode = solidBankTransactionCode;
         this.merchantTransactionCode = merchantTransactionCode;
+        this.authenticate = authenticate;
     }
 
     public int getId() {
@@ -112,5 +116,13 @@ public class PreCheckoutEntity {
 
     public void setAmount(final double amount) {
         this.amount = amount;
+    }
+
+    public boolean isAuthenticate() {
+        return authenticate;
+    }
+
+    public void setAuthenticate(final boolean authenticate) {
+        this.authenticate = authenticate;
     }
 }

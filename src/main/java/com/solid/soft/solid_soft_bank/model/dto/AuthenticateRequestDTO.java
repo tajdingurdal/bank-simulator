@@ -10,21 +10,6 @@ public class AuthenticateRequestDTO {
     private String successRedirectURL;
     private String failureRedirectURL;
 
-    public AuthenticateRequestDTO() {
-    }
-
-    public AuthenticateRequestDTO(final String merchantTransactionCode, final String apiKey, final String bankTransactionCode,
-                                  final String successRedirectURL,
-                                  final String failureRedirectURL, final double amount, final String currency) {
-        this.merchantTransactionCode = merchantTransactionCode;
-        this.apiKey = apiKey;
-        this.bankTransactionCode = bankTransactionCode;
-        this.successRedirectURL = successRedirectURL;
-        this.failureRedirectURL = failureRedirectURL;
-        this.amount = amount;
-        this.currency = currency;
-    }
-
     public String getMerchantTransactionCode() {
         return merchantTransactionCode;
     }

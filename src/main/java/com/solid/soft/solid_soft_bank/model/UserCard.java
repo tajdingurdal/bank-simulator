@@ -114,17 +114,5 @@ public class UserCard {
         this.currency = currency;
     }
 
-    @Override
-    public String toString() {
-        return "UserCard{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", cardNo='" + cardNo + '\'' +
-                ", expiredDate='" + expiredDate + '\'' +
-                ", cvc='" + cvc + '\'' +
-                ", amount=" + amount +
-                ", currency='" + currency + '\'' +
-                '}';
-    }
+
 }

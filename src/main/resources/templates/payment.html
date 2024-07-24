@@ -29,7 +29,10 @@
 <body>
 	<div align="center">
 		<h1>Payment Process</h1>
-		<form action="#" th:action="@{/bank/ui/otp}" method="post" th:object="${user}">
+		<form action="#" th:action="@{/bank/ui/pay}" th:object="${user}" method="post">
+
+			<input type="hidden" name="bankTransactionCode" th:value="${bankTransactionCode}">
+
 			<label>Name:</label>
 			<input type="text" th:field="*{name}" /><br/>
 
