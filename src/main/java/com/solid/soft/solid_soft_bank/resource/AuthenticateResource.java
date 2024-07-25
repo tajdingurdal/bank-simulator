@@ -18,6 +18,6 @@ public class AuthenticateResource {
 
     @PostMapping
     public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) {
-        return authenticateService.authenticate(authenticateRequestDTO);
+        return authenticateService.authenticatePrePayment(authenticateRequestDTO);
     }
 }

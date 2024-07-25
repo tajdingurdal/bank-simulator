@@ -1,7 +1,6 @@
 package com.solid.soft.solid_soft_bank.service;
 
 import com.solid.soft.solid_soft_bank.model.MerchantEntity;
-import com.solid.soft.solid_soft_bank.model.SubscribeRequestEntity;
 import com.solid.soft.solid_soft_bank.model.SubscribeResponseEntity;
 import com.solid.soft.solid_soft_bank.model.dto.SubscribeResponseDTO;
 import com.solid.soft.solid_soft_bank.repository.SubscribeRequestRepository;
@@ -9,7 +8,6 @@ import com.solid.soft.solid_soft_bank.repository.SubscribeResponseRepository;
 import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -55,19 +53,19 @@ public class SubscribeService {
         final SubscribeRequestEntity subscribeRequestEntity = new SubscribeRequestEntity(merchantTransactionCode, apiKey, amount, currency);
         subscribeRequestRepository.save(subscribeRequestEntity);
 
-        final String  solidBankTransactionCode = UUID.randomUUID().toString() + ZonedDateTime.now().toInstant().toEpochMilli();
+        final String  bankTransactionCode = String.format(merchantTransactionCode.toLowerCase() + UUID.randomUUID() + ZonedDateTime.now().toInstant().toEpochMilli());
         final boolean subscribe                = true;
 
 
         final SubscribeResponseEntity responseEntity = new SubscribeResponseEntity(merchantTransactionCode,
-                                                                                   solidBankTransactionCode,
+                                                                                   bankTransactionCode,
                                                                                    ResponseMessages.SUBSCRIBE_SUCCESS,
                                                                                    subscribe);
         subscribeResponseRepository.save(responseEntity);
 
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
-        response.setBankTransactionCode(solidBankTransactionCode);
+        response.setBankTransactionCode(bankTransactionCode);
         return response;
     }
 
@@ -87,6 +85,10 @@ public class SubscribeService {
             return ResponseMessages.invalidTransactionCodeLengthMessage(merchantTransactionCode);
         }
 
+        if (subscribeRequestRepository.findByMerchantTransactionCode(merchantTransactionCode).isPresent()) {
+            return ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
+        }
+
         final long amountLong = Long.parseLong(amount);
         if (amountLong < 0 || amountLong > 1000000) {
             return ResponseMessages.invalidAmountMessage(amountLong);
@@ -94,10 +96,6 @@ public class SubscribeService {
 
         if (!currencies.contains(currency)) {
             return ResponseMessages.invalidCurrencyMessage(currency);
-        }
-
-        if (subscribeRequestRepository.findByMerchantTransactionCode(merchantTransactionCode).isPresent()) {
-            return ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
         }
 
         return null;

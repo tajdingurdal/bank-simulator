@@ -13,13 +13,13 @@ public class AuthenticateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "merchant_transaction_code")
     private String merchantTransactionCode;
 
-    @Column(name = "solid_bank_transaction_code")
-    private String solidBankTransactionCode;
+    @Column(name = "bank_transaction_code")
+    private String bankTransactionCode;
 
     @Column(name = "result_message")
     private String resultMessage;
@@ -46,24 +46,24 @@ public class AuthenticateEntity {
     }
 
     public AuthenticateEntity(final double amount, final String failedRedirectURL, final String successRedirectURL, final String currency,
-                              final String resultMessage, final String solidBankTransactionCode, final String merchantTransactionCode,
+                              final String resultMessage, final String bankTransactionCode, final String merchantTransactionCode,
                               boolean authenticate, String apiKey) {
         this.amount = amount;
         this.failedRedirectURL = failedRedirectURL;
         this.successRedirectURL = successRedirectURL;
         this.currency = currency;
         this.resultMessage = resultMessage;
-        this.solidBankTransactionCode = solidBankTransactionCode;
+        this.bankTransactionCode = bankTransactionCode;
         this.merchantTransactionCode = merchantTransactionCode;
         this.authenticate = authenticate;
         this.apiKey = apiKey;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(final int id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -75,12 +75,12 @@ public class AuthenticateEntity {
         this.merchantTransactionCode = merchantTransactionCode;
     }
 
-    public String getSolidBankTransactionCode() {
-        return solidBankTransactionCode;
+    public String getBankTransactionCode() {
+        return bankTransactionCode;
     }
 
-    public void setSolidBankTransactionCode(final String solidBankTransactionCode) {
-        this.solidBankTransactionCode = solidBankTransactionCode;
+    public void setBankTransactionCode(final String solidBankTransactionCode) {
+        this.bankTransactionCode = solidBankTransactionCode;
     }
 
     public String getResultMessage() {

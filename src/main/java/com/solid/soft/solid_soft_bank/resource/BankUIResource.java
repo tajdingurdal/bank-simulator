@@ -3,7 +3,8 @@ package com.solid.soft.solid_soft_bank.resource;
 import com.solid.soft.solid_soft_bank.model.AuthenticateEntity;
 import com.solid.soft.solid_soft_bank.model.MerchantEntity;
 import com.solid.soft.solid_soft_bank.model.SubscribeResponseEntity;
-import com.solid.soft.solid_soft_bank.model.UserCard;
+import com.solid.soft.solid_soft_bank.model.UserPaymentProcess;
+import com.solid.soft.solid_soft_bank.model.dto.UserPaymentProcessDTO;
 import com.solid.soft.solid_soft_bank.service.AuthenticateService;
 import com.solid.soft.solid_soft_bank.service.MerchantService;
 import com.solid.soft.solid_soft_bank.service.SubscribeService;
@@ -11,11 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.management.InstanceAlreadyExistsException;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/bank/ui")
@@ -44,7 +49,8 @@ public class BankUIResource {
         }
         final MerchantEntity merchantEntity = merchantService.findByApikey(authenticateEntity.getApiKey());
 
-        final UserCard user = new UserCard();
+        final UserPaymentProcessDTO user = new UserPaymentProcessDTO();
+        user.setId(authenticateEntity.getId());
         user.setAmount(authenticateEntity.getAmount());
         user.setCurrency(authenticateEntity.getCurrency());
         user.setMerchantName(merchantEntity.getName());
@@ -55,18 +61,15 @@ public class BankUIResource {
     }
 
     @PostMapping("/pay")
-    public String pay(@RequestParam String bankTransactionCode, @ModelAttribute("user") UserCard user) {
+    public String pay(@RequestParam String bankTransactionCode, @ModelAttribute("user") UserPaymentProcessDTO user) throws InstanceAlreadyExistsException {
         log.info("User: {}", user);
-        // validate user card in DB
-        // adamın kartını valide et, sendekiyle aynı mı
-        // bankTransactionCode kullanarak DBden çekilecek olan amountu bul, hesabında para var mı
+        final String authenticateResult = authenticateService.authenticatePaymentProcess(bankTransactionCode, user);
 
+        if(!Objects.isNull(authenticateResult)){
+            final AuthenticateEntity authenticateEntity = authenticateService.findByBankTransactionCode(bankTransactionCode);
+           return "redirect:" + authenticateEntity.getFailedRedirectURL();
+        }
 
-        //başarısız ise
-        // Authenticate entitysinden failureCallbackUrl'i bul
-        // return "redirect:" + failureCallbackUrl
-
-        // başarılı ise
         return "otp";
     }
 

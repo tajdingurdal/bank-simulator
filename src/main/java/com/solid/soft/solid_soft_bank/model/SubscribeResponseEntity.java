@@ -19,7 +19,7 @@ public class SubscribeResponseEntity {
     private String merchantTransactionCode;
 
     @Column(name = "solid_bank_transaction_code")
-    private String solidBankTransactionCode;
+    private String bankTransactionCode;
 
     @Column(name = "result_message")
     private String resultMessage;
@@ -27,9 +27,9 @@ public class SubscribeResponseEntity {
     @Column(name = "subscribe")
     private boolean isSubscribe;
 
-    public SubscribeResponseEntity(final String merchantTransactionCode, final String solidBankTransactionCode, final String resultMessage, final boolean isSubscribe) {
+    public SubscribeResponseEntity(final String merchantTransactionCode, final String bankTransactionCode, final String resultMessage, final boolean isSubscribe) {
         this.merchantTransactionCode = merchantTransactionCode;
-        this.solidBankTransactionCode = solidBankTransactionCode;
+        this.bankTransactionCode = bankTransactionCode;
         this.resultMessage = resultMessage;
         this.isSubscribe = isSubscribe;
     }
@@ -53,12 +53,12 @@ public class SubscribeResponseEntity {
         this.merchantTransactionCode = merchantTransactionCode;
     }
 
-    public String getSolidBankTransactionCode() {
-        return solidBankTransactionCode;
+    public String getBankTransactionCode() {
+        return bankTransactionCode;
     }
 
-    public void setSolidBankTransactionCode(final String solidBankTransactionCode) {
-        this.solidBankTransactionCode = solidBankTransactionCode;
+    public void setBankTransactionCode(final String solidBankTransactionCode) {
+        this.bankTransactionCode = solidBankTransactionCode;
     }
 
     public String getResultMessage() {

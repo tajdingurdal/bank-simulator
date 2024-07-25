@@ -1,52 +1,33 @@
-package com.solid.soft.solid_soft_bank.model;
+package com.solid.soft.solid_soft_bank.model.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+public class UserPaymentProcessDTO {
 
-@Entity
-@Table(name = "user_card")
-public class UserCard {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname")
     private String surname;
 
-    @Column(name = "card_no")
     private String cardNo;
 
-    @Column(name = "expire_date")
     private String expiredDate;
 
-    @Column(name = "cvc")
     private String cvc;
 
-    @Column(name = "amount")
     private Double amount;
 
-    @Column(name = "currency")
     private String currency;
 
-    @Column(name = "merchant_name")
     private String merchantName;
 
-    @Column(name = "bank_transaction_code")
     private String bankTransactionCode;
 
-    public UserCard() {
+    public UserPaymentProcessDTO() {
     }
 
-    public UserCard(final String name, final String surname, final String cardNo, final String expiredDate, final String cvc,
-                    final Double amount, final String currency, String merchantName, String bankTransactionCode) {
+    public UserPaymentProcessDTO(final String name, final String surname, final String cardNo, final String expiredDate, final String cvc,
+                                 final Double amount, final String currency,
+                                 final String merchantName, final String bankTransactionCode) {
         this.name = name;
         this.surname = surname;
         this.cardNo = cardNo;
@@ -136,21 +117,5 @@ public class UserCard {
 
     public void setBankTransactionCode(final String bankTransactionCode) {
         this.bankTransactionCode = bankTransactionCode;
-    }
-
-    @Override
-    public String toString() {
-        return "UserCard{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", cardNo='" + cardNo + '\'' +
-                ", expiredDate='" + expiredDate + '\'' +
-                ", cvc='" + cvc + '\'' +
-                ", amount=" + amount +
-                ", currency='" + currency + '\'' +
-                ", merchantName='" + merchantName + '\'' +
-                ", bankTransactionCode='" + bankTransactionCode + '\'' +
-                '}';
     }
 }

@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface AuthenticateRepository extends JpaRepository<AuthenticateEntity, Long> {
 
-    Optional<AuthenticateEntity> findBySolidBankTransactionCode(String bankTransactionCode);
+    Optional<AuthenticateEntity> findByBankTransactionCode(String bankTransactionCode);
 }

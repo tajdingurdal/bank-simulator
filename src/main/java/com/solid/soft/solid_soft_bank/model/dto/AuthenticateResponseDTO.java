@@ -2,7 +2,7 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 public class AuthenticateResponseDTO {
 
-    private String  solidBankTransactionCode;
+    private String  bankTransactionCode;
     private boolean status;
     private String  message;
     private String  paymentUrl;
@@ -10,20 +10,20 @@ public class AuthenticateResponseDTO {
     public AuthenticateResponseDTO() {
     }
 
-    public AuthenticateResponseDTO(final String solidBankTransactionCode, final boolean status, final String message,
+    public AuthenticateResponseDTO(final String bankTransactionCode, final boolean status, final String message,
                                    final String paymentUrl) {
-        this.solidBankTransactionCode = solidBankTransactionCode;
+        this.bankTransactionCode = bankTransactionCode;
         this.status = status;
         this.message = message;
         this.paymentUrl = paymentUrl;
     }
 
-    public String getSolidBankTransactionCode() {
-        return solidBankTransactionCode;
+    public String getBankTransactionCode() {
+        return bankTransactionCode;
     }
 
-    public void setSolidBankTransactionCode(final String solidBankTransactionCode) {
-        this.solidBankTransactionCode = solidBankTransactionCode;
+    public void setBankTransactionCode(final String bankTransactionCode) {
+        this.bankTransactionCode = bankTransactionCode;
     }
 
     public boolean isStatus() {
