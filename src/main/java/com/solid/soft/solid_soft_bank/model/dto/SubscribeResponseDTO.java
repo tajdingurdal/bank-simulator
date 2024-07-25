@@ -2,12 +2,12 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 public class SubscribeResponseDTO {
 
-    private String solidTransactionCode;
+    private String bankTransactionCode;
     private String message;
     private boolean isSubscribe;
 
-    public SubscribeResponseDTO(final String solidTransactionCode, final String message, boolean isSubscribe) {
-        this.solidTransactionCode = solidTransactionCode;
+    public SubscribeResponseDTO(final String bankTransactionCode, final String message, boolean isSubscribe) {
+        this.bankTransactionCode = bankTransactionCode;
         this.message = message;
         this.isSubscribe= isSubscribe;
     }
@@ -15,12 +15,12 @@ public class SubscribeResponseDTO {
     public SubscribeResponseDTO() {
     }
 
-    public String getSolidTransactionCode() {
-        return solidTransactionCode;
+    public String getBankTransactionCode() {
+        return bankTransactionCode;
     }
 
-    public void setSolidTransactionCode(final String transactionCode) {
-        this.solidTransactionCode = transactionCode;
+    public void setBankTransactionCode(final String transactionCode) {
+        this.bankTransactionCode = transactionCode;
     }
 
     public String getMessage() {

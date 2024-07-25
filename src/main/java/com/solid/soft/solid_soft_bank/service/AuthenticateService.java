@@ -64,7 +64,8 @@ public class AuthenticateService {
                                                                              ResponseMessages.AUTHENTICATE_SUCCESS,
                                                                              authenticate.getBankTransactionCode(),
                                                                              authenticate.getMerchantTransactionCode(),
-                                                                             true);
+                                                                             true,
+                                                                             authenticate.getApiKey());
 
         authenticateRepository.save(authenticateEntity);
 

@@ -1,5 +1,6 @@
 package com.solid.soft.solid_soft_bank.service;
 
+import com.solid.soft.solid_soft_bank.model.MerchantEntity;
 import com.solid.soft.solid_soft_bank.model.SubscribeRequestEntity;
 import com.solid.soft.solid_soft_bank.model.SubscribeResponseEntity;
 import com.solid.soft.solid_soft_bank.model.dto.SubscribeResponseDTO;
@@ -18,10 +19,8 @@ import java.util.UUID;
 @Service
 public class SubscribeService {
 
+    private final MerchantService merchantService;
     Logger log = LoggerFactory.getLogger(SubscribeService.class);
-
-    @Value("${solid.bank.api-key}")
-    private String apiKey;
 
     private final List<String> currencies = List.of("USD", "TL", "EURO");
 
@@ -29,9 +28,10 @@ public class SubscribeService {
     private final SubscribeResponseRepository subscribeResponseRepository;
 
     public SubscribeService(final SubscribeRequestRepository subscribeRequestRepository,
-                            final SubscribeResponseRepository subscribeResponseRepository) {
+                            final SubscribeResponseRepository subscribeResponseRepository, final MerchantService merchantService) {
         this.subscribeRequestRepository = subscribeRequestRepository;
         this.subscribeResponseRepository = subscribeResponseRepository;
+        this.merchantService = merchantService;
     }
 
     public SubscribeResponseEntity findSubscribeResponseByMerchantTransactionCode(String merchantTransactionCode) {
@@ -47,7 +47,7 @@ public class SubscribeService {
         final SubscribeResponseDTO response         = new SubscribeResponseDTO();
         final String               validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
         if (validationResult != null) {
-            response.setMessage(ResponseMessages.SUBSCRIBE_FAILED);
+            response.setMessage(validationResult);
             response.setSubscribe(false);
             return response;
         }
@@ -67,7 +67,7 @@ public class SubscribeService {
 
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
-        response.setSolidTransactionCode(solidBankTransactionCode);
+        response.setBankTransactionCode(solidBankTransactionCode);
         return response;
     }
 
@@ -75,34 +75,29 @@ public class SubscribeService {
                                      final String currency) {
 
         if (merchantTransactionCode == null || apiKey == null || amount == null || currency == null) {
-            log.debug("merchantTransactionCode {} apiKey {} amount {} currency {}", merchantTransactionCode, apiKey, amount, currency);
-            return "";
+            return ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency);
         }
 
-        if (apiKey.length() != 16 || !this.apiKey.equals(apiKey)) {
-            log.debug("apiKey {} is not valid", apiKey);
-            return "";
+        final MerchantEntity merchantEntity = merchantService.findByApikey(apiKey);
+        if (!merchantEntity.getApiKey().equals(apiKey)) {
+            return ResponseMessages.invalidApiKeyMessage(apiKey);
         }
 
         if (merchantTransactionCode.length() != 16) {
-            log.debug("merchantTransactionCode {} is not valid. Length is {}", merchantTransactionCode, merchantTransactionCode.length());
-            return "";
+            return ResponseMessages.invalidTransactionCodeLengthMessage(merchantTransactionCode);
         }
 
         final long amountLong = Long.parseLong(amount);
         if (amountLong < 0 || amountLong > 1000000) {
-            log.debug("Amount is less than 0 or higher than 1000000 {}", amountLong);
-            return "";
+            return ResponseMessages.invalidAmountMessage(amountLong);
         }
 
         if (!currencies.contains(currency)) {
-            log.debug("currency {} is not valid", currency);
-            return "";
+            return ResponseMessages.invalidCurrencyMessage(currency);
         }
 
         if (subscribeRequestRepository.findByMerchantTransactionCode(merchantTransactionCode).isPresent()) {
-            log.debug("merchantTransactionCode: {} already subscribed", merchantTransactionCode);
-            return "";
+            return ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
         }
 
         return null;

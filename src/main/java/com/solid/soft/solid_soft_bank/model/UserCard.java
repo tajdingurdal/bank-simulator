@@ -36,11 +36,17 @@ public class UserCard {
     @Column(name = "currency")
     private String currency;
 
+    @Column(name = "merchant_name")
+    private String merchantName;
+
+    @Column(name = "bank_transaction_code")
+    private String bankTransactionCode;
+
     public UserCard() {
     }
 
     public UserCard(final String name, final String surname, final String cardNo, final String expiredDate, final String cvc,
-                    final Double amount, final String currency) {
+                    final Double amount, final String currency, String merchantName, String bankTransactionCode) {
         this.name = name;
         this.surname = surname;
         this.cardNo = cardNo;
@@ -48,6 +54,8 @@ public class UserCard {
         this.cvc = cvc;
         this.amount = amount;
         this.currency = currency;
+        this.merchantName = merchantName;
+        this.bankTransactionCode = bankTransactionCode;
     }
 
     public Long getId() {
@@ -114,5 +122,35 @@ public class UserCard {
         this.currency = currency;
     }
 
+    public String getMerchantName() {
+        return merchantName;
+    }
 
+    public void setMerchantName(final String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public String getBankTransactionCode() {
+        return bankTransactionCode;
+    }
+
+    public void setBankTransactionCode(final String bankTransactionCode) {
+        this.bankTransactionCode = bankTransactionCode;
+    }
+
+    @Override
+    public String toString() {
+        return "UserCard{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", cardNo='" + cardNo + '\'' +
+                ", expiredDate='" + expiredDate + '\'' +
+                ", cvc='" + cvc + '\'' +
+                ", amount=" + amount +
+                ", currency='" + currency + '\'' +
+                ", merchantName='" + merchantName + '\'' +
+                ", bankTransactionCode='" + bankTransactionCode + '\'' +
+                '}';
+    }
 }

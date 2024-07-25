@@ -39,11 +39,15 @@ public class AuthenticateEntity {
     @Column(name = "authenticate")
     private boolean authenticate;
 
+    @Column(name = "api_key")
+    private String apiKey;
+
     public AuthenticateEntity() {
     }
 
     public AuthenticateEntity(final double amount, final String failedRedirectURL, final String successRedirectURL, final String currency,
-                              final String resultMessage, final String solidBankTransactionCode, final String merchantTransactionCode, boolean authenticate) {
+                              final String resultMessage, final String solidBankTransactionCode, final String merchantTransactionCode,
+                              boolean authenticate, String apiKey) {
         this.amount = amount;
         this.failedRedirectURL = failedRedirectURL;
         this.successRedirectURL = successRedirectURL;
@@ -52,6 +56,7 @@ public class AuthenticateEntity {
         this.solidBankTransactionCode = solidBankTransactionCode;
         this.merchantTransactionCode = merchantTransactionCode;
         this.authenticate = authenticate;
+        this.apiKey = apiKey;
     }
 
     public int getId() {
@@ -124,5 +129,13 @@ public class AuthenticateEntity {
 
     public void setAuthenticate(final boolean authenticate) {
         this.authenticate = authenticate;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(final String apiKey) {
+        this.apiKey = apiKey;
     }
 }
