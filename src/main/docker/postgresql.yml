@@ -14,4 +14,4 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - 5432:5432
+      - 5431:5432

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.management.InstanceAlreadyExistsException;
+
 @RestController
 @RequestMapping("/authenticate")
 public class AuthenticateResource {
@@ -17,7 +19,7 @@ public class AuthenticateResource {
     public AuthenticateResource(final AuthenticateService authenticateService) {this.authenticateService = authenticateService;}
 
     @PostMapping
-    public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) {
+    public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) throws InstanceAlreadyExistsException {
         return authenticateService.authenticatePrePayment(authenticateRequestDTO);
     }
 }

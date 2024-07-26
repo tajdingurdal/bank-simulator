@@ -1,52 +1,67 @@
-package com.solid.soft.solid_soft_bank.model;
+package com.solid.soft.solid_soft_bank.model.dto;
 
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 import java.time.ZonedDateTime;
 
-@Entity
-@Table(name = "payment_transaction_entry")
-public class PaymentTransactionEntryEntity extends BaseEntity {
+public class PaymentTransactionEntryDTO {
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type")
+    private Long id;
+
     private PaymentTransactionType transactionType;
 
-    @Column(name = "status")
     private boolean status;
 
-    @Column(name = "result_message")
     private String resultMessage;
 
-    @Column(name = "success_redirect_url")
     private String successRedirectURL;
 
-    @Column(name = "failed_redirect_url")
     private String failedRedirectURL;
 
-    @Column(name = "amount")
     private Double amount;
 
-    @Column(name = "currency")
     private String currency;
 
-    @Column(name = "create_date")
     private ZonedDateTime createDate;
 
-    @Column(name = "payment_transaction_id", nullable = false)
     private Long paymentTransactionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_transaction_id", updatable = false, insertable = false)
-    private PaymentTransactionEntity paymentTransaction;
+    private PaymentTransactionDTO paymentTransactionDto;
+
+    public PaymentTransactionEntryDTO() {
+    }
+
+    public PaymentTransactionEntryDTO(final Long id,
+                                      final PaymentTransactionType transactionType,
+                                      final boolean status,
+                                      final String resultMessage,
+                                      final String successRedirectURL,
+                                      final String failedRedirectURL,
+                                      final Double amount,
+                                      final String currency,
+                                      final ZonedDateTime createDate,
+                                      final Long paymentTransactionId,
+                                      final PaymentTransactionDTO paymentTransactionDto) {
+        this.id = id;
+        this.transactionType = transactionType;
+        this.status = status;
+        this.resultMessage = resultMessage;
+        this.successRedirectURL = successRedirectURL;
+        this.failedRedirectURL = failedRedirectURL;
+        this.amount = amount;
+        this.currency = currency;
+        this.createDate = createDate;
+        this.paymentTransactionId = paymentTransactionId;
+        this.paymentTransactionDto = paymentTransactionDto;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
+    }
 
     public PaymentTransactionType getTransactionType() {
         return transactionType;
@@ -88,20 +103,20 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
         this.failedRedirectURL = failedRedirectURL;
     }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(final String currency) {
-        this.currency = currency;
-    }
-
     public Double getAmount() {
         return amount;
     }
 
     public void setAmount(final Double amount) {
         this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(final String currency) {
+        this.currency = currency;
     }
 
     public ZonedDateTime getCreateDate() {
@@ -120,11 +135,11 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
         this.paymentTransactionId = paymentTransactionId;
     }
 
-    public PaymentTransactionEntity getPaymentTransaction() {
-        return paymentTransaction;
+    public PaymentTransactionDTO getPaymentTransactionDto() {
+        return paymentTransactionDto;
     }
 
-    public void setPaymentTransaction(final PaymentTransactionEntity paymentTransaction) {
-        this.paymentTransaction = paymentTransaction;
+    public void setPaymentTransactionDto(final PaymentTransactionDTO paymentTransactionDto) {
+        this.paymentTransactionDto = paymentTransactionDto;
     }
 }

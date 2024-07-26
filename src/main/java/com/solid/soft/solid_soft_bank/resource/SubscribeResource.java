@@ -18,7 +18,7 @@ public class SubscribeResource {
     @PostMapping("/subscribe")
     public SubscribeResponseDTO subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
                                           @RequestParam(name = "apiKey") String apiKey,
-                                          @RequestParam(name = "amount") String amount,
+                                          @RequestParam(name = "amount") Double amount,
                                           @RequestParam(name = "currency") String currency) {
 
         return bankService.subscribe(merchantTransactionCode, apiKey, amount, currency);

@@ -1,83 +1,110 @@
 package com.solid.soft.solid_soft_bank.service;
 
-import com.solid.soft.solid_soft_bank.model.MerchantEntity;
-import com.solid.soft.solid_soft_bank.model.SubscribeResponseEntity;
+import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntity;
+import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
+import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
+import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import com.solid.soft.solid_soft_bank.model.dto.SubscribeResponseDTO;
-import com.solid.soft.solid_soft_bank.repository.SubscribeRequestRepository;
-import com.solid.soft.solid_soft_bank.repository.SubscribeResponseRepository;
+import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
+import com.solid.soft.solid_soft_bank.repository.PaymentTransactionEntryRepository;
+import com.solid.soft.solid_soft_bank.repository.PaymentTransactionRepository;
 import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class SubscribeService {
 
-    private final MerchantService merchantService;
+    private final PaymentTransactionService paymentTransactionService;
     Logger log = LoggerFactory.getLogger(SubscribeService.class);
+
+    private final PaymentTransactionRepository paymentTransactionRepository;
+    private final MerchantService merchantService;
+    private final PaymentTransactionEntryRepository entryRepository;
 
     private final List<String> currencies = List.of("USD", "TL", "EURO");
 
-    private final SubscribeRequestRepository  subscribeRequestRepository;
-    private final SubscribeResponseRepository subscribeResponseRepository;
 
-    public SubscribeService(final SubscribeRequestRepository subscribeRequestRepository,
-                            final SubscribeResponseRepository subscribeResponseRepository, final MerchantService merchantService) {
-        this.subscribeRequestRepository = subscribeRequestRepository;
-        this.subscribeResponseRepository = subscribeResponseRepository;
+    public SubscribeService(final MerchantService merchantService,
+                            final PaymentTransactionEntryRepository entryRepository,
+                            final PaymentTransactionRepository paymentTransactionRepository,
+                            final PaymentTransactionService paymentTransactionService) {
         this.merchantService = merchantService;
+        this.entryRepository = entryRepository;
+        this.paymentTransactionRepository = paymentTransactionRepository;
+        this.paymentTransactionService = paymentTransactionService;
     }
 
-    public SubscribeResponseEntity findSubscribeResponseByMerchantTransactionCode(String merchantTransactionCode) {
-        return subscribeResponseRepository.findByMerchantTransactionCode(merchantTransactionCode).orElseThrow();
+    public PaymentTransactionEntryDTO findSubscribeEntryByMerchantTransactionCode(String merchantTransactionCode) {
+        return paymentTransactionService.findByMerchantTransactionCodeAndType(merchantTransactionCode, PaymentTransactionType.SUBSCRIBE);
     }
 
-    public SubscribeRequestEntity findSubscribeRequestByMerchantTransactionCode(String merchantTransactionCode) {
-        return subscribeRequestRepository.findByMerchantTransactionCode(merchantTransactionCode).orElseThrow();
+    public PaymentTransactionEntryDTO findSubscribeEntryByPaymentTransactionId(final Long paymentTransactionId) {
+        return paymentTransactionService.findSubscribeEntryByPaymentTransactionIdAndType(paymentTransactionId, PaymentTransactionType.SUBSCRIBE);
     }
 
-    public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final String amount,
-                                          final String currency) {
-        final SubscribeResponseDTO response         = new SubscribeResponseDTO();
-        final String               validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
+    public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
+
+        final SubscribeResponseDTO response = new SubscribeResponseDTO();
+        final String validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
         if (validationResult != null) {
             response.setMessage(validationResult);
             response.setSubscribe(false);
             return response;
         }
 
-        final SubscribeRequestEntity subscribeRequestEntity = new SubscribeRequestEntity(merchantTransactionCode, apiKey, amount, currency);
-        subscribeRequestRepository.save(subscribeRequestEntity);
+        final String bankTransactionCode = createBankTransactionCode(merchantTransactionCode);
+        final boolean subscribe = true;
 
-        final String  bankTransactionCode = String.format(merchantTransactionCode.toLowerCase() + UUID.randomUUID() + ZonedDateTime.now().toInstant().toEpochMilli());
-        final boolean subscribe                = true;
+        final MerchantDTO merchantDTO = merchantService.findByApikey(apiKey);
 
+        // Save Payment Transaction Entity
+        final PaymentTransactionEntity paymentTransactionEntity = new PaymentTransactionEntity();
+        paymentTransactionEntity.setMerchantTransactionCode(merchantTransactionCode);
+        paymentTransactionEntity.setMerchandId(merchantDTO.getId());
+        paymentTransactionEntity.setBankTransactionCode(bankTransactionCode);
 
-        final SubscribeResponseEntity responseEntity = new SubscribeResponseEntity(merchantTransactionCode,
-                                                                                   bankTransactionCode,
-                                                                                   ResponseMessages.SUBSCRIBE_SUCCESS,
-                                                                                   subscribe);
-        subscribeResponseRepository.save(responseEntity);
+        final PaymentTransactionEntity savedPaymentTransactionEntity = paymentTransactionRepository.save(paymentTransactionEntity);
 
+        // Save Subscribe
+        final PaymentTransactionEntryEntity subscribeEntity = new PaymentTransactionEntryEntity();
+        subscribeEntity.setStatus(subscribe);
+        subscribeEntity.setAmount(amount);
+        subscribeEntity.setCurrency(currency);
+        subscribeEntity.setPaymentTransactionId(savedPaymentTransactionEntity.getId());
+        subscribeEntity.setResultMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
+        subscribeEntity.setCreateDate(ZonedDateTime.now());
+        subscribeEntity.setTransactionType(PaymentTransactionType.SUBSCRIBE);
+
+        entryRepository.save(subscribeEntity);
+
+        // Return
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
         return response;
     }
 
-    private String validateSubscribe(final String merchantTransactionCode, final String apiKey, final String amount,
-                                     final String currency) {
+    private String validateSubscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
 
         if (merchantTransactionCode == null || apiKey == null || amount == null || currency == null) {
             return ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency);
         }
 
-        final MerchantEntity merchantEntity = merchantService.findByApikey(apiKey);
-        if (!merchantEntity.getApiKey().equals(apiKey)) {
+        final MerchantDTO merchantDto = merchantService.findByApikey(apiKey);
+        if (merchantDto == null) {
+            return ResponseMessages.merchantNotFoundByApiKey(apiKey);
+        }
+
+        if (!merchantDto.getApiKey().equals(apiKey)) {
             return ResponseMessages.invalidApiKeyMessage(apiKey);
         }
 
@@ -85,13 +112,12 @@ public class SubscribeService {
             return ResponseMessages.invalidTransactionCodeLengthMessage(merchantTransactionCode);
         }
 
-        if (subscribeRequestRepository.findByMerchantTransactionCode(merchantTransactionCode).isPresent()) {
+        if (findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode) != null) {
             return ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
         }
 
-        final long amountLong = Long.parseLong(amount);
-        if (amountLong < 0 || amountLong > 1000000) {
-            return ResponseMessages.invalidAmountMessage(amountLong);
+        if (amount < 0 || amount > 1000000) {
+            return ResponseMessages.invalidAmountMessage(amount);
         }
 
         if (!currencies.contains(currency)) {
@@ -100,4 +126,10 @@ public class SubscribeService {
 
         return null;
     }
+
+    private String createBankTransactionCode(final String merchantTransactionCode) {
+        return String.format(
+                merchantTransactionCode.toLowerCase() + UUID.randomUUID().toString().toLowerCase() + ZonedDateTime.now().toInstant().toEpochMilli());
+    }
+
 }

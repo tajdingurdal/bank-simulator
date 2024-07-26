@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="ISO-8859-1">
-<title>User Registration</title>
+<title>Payment Transaction</title>
 <style type="text/css">
 	label {
 		display: inline-block;
@@ -28,8 +28,8 @@
 </head>
 <body>
 	<div align="center">
-		<h1> Payment Process for <span th:text="${user.merchantName}"></span></h1>
-		<form action="#" th:action="@{/bank/ui/pay}" th:object="${user}" method="post">
+		<h1> Payment Process</span></h1>
+		<form action="#" th:action="@{/bank/ui/pay}" th:object="${card}" method="post">
 
 			<input type="hidden" name="bankTransactionCode" th:value="${bankTransactionCode}">
 
@@ -42,7 +42,7 @@
 			<label>Card Number:</label>
 			<input type="text" th:field="*{cardNo}" /><br/>
 
-			<label>Expired Date (mm-yy):</label>
+			<label>Expired Date (mm/yy):</label>
 			<input type="text" th:field="*{expiredDate}" /><br/>
 
 			<label>CVC:</label>
@@ -50,14 +50,9 @@
 
 			<label>Amount:</label>
 			<input type="text" th:field="*{amount}" readonly /><br/>
-			<input type="hidden" th:field="*{amount}" /><br/>
-
 
 			<label>Currency:</label>
-			<input type="text" th:value="*{currency}" readonly /><br/>
-			<input type="hidden" th:value="*{currency}" />
-
-			<input type="hidden" th:field="*{merchantName}"/><br/>
+			<input type="text" th:field="*{currency}" readonly /><br/>
 
 			<button type="submit">Buy</button>
 		</form>

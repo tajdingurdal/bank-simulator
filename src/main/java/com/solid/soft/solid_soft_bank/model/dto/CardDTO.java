@@ -1,46 +1,36 @@
-package com.solid.soft.solid_soft_bank.model;
+package com.solid.soft.solid_soft_bank.model.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+public class CardDTO {
 
-@Entity
-@Table(name = "card")
-public class Card {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname")
     private String surname;
 
-    @Column(name = "card_no")
     private String cardNo;
 
-    @Column(name = "expire_date")
     private String expiredDate;
 
-    @Column(name = "cvc")
     private String cvc;
 
-    @Column(name = "amount")
     private Double amount;
 
-    @Column(name = "currency")
     private String currency;
 
-    public Card() {
+
+    public CardDTO() {
     }
 
-    public Card(final String name, final String surname, final String cardNo, final String expiredDate, final String cvc,
-                final Double amount, final String currency) {
+    public CardDTO(final Long id,
+                   final String name,
+                   final String surname,
+                   final String cardNo,
+                   final String expiredDate,
+                   final String cvc,
+                   final Double amount,
+                   final String currency) {
+        this.id = id;
         this.name = name;
         this.surname = surname;
         this.cardNo = cardNo;
@@ -112,5 +102,19 @@ public class Card {
 
     public void setCurrency(final String currency) {
         this.currency = currency;
+    }
+
+    @Override
+    public String toString() {
+        return "CardDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", cardNo='" + cardNo + '\'' +
+                ", expiredDate='" + expiredDate + '\'' +
+                ", cvc='" + cvc + '\'' +
+                ", amount=" + amount +
+                ", currency='" + currency + '\'' +
+                '}';
     }
 }

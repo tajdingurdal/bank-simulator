@@ -1,125 +1,233 @@
 package com.solid.soft.solid_soft_bank.service;
 
-import com.solid.soft.solid_soft_bank.model.AuthenticateEntity;
-import com.solid.soft.solid_soft_bank.model.Card;
-import com.solid.soft.solid_soft_bank.model.SubscribeResponseEntity;
-import com.solid.soft.solid_soft_bank.model.UserPaymentProcess;
+import com.solid.soft.solid_soft_bank.model.CardEntity;
+import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
 import com.solid.soft.solid_soft_bank.model.dto.AuthenticateRequestDTO;
 import com.solid.soft.solid_soft_bank.model.dto.AuthenticateResponseDTO;
-import com.solid.soft.solid_soft_bank.model.dto.UserPaymentProcessDTO;
-import com.solid.soft.solid_soft_bank.repository.AuthenticateRepository;
+import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
+import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
+import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
+import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
+import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 
 @Service
 public class AuthenticateService {
 
-    private final AuthenticateRepository repository;
-
-    private final AuthenticateRepository authenticateRepository;
-    private final SubscribeService       subscribeService;
-    private final UserCardService        userCardService;
+    private static final Logger log = LoggerFactory.getLogger(AuthenticateService.class);
+    private final SubscribeService subscribeService;
     private final CardService cardService;
+    private final PaymentTransactionService paymentTransactionService;
 
-    public AuthenticateService(final AuthenticateRepository repository, final AuthenticateRepository authenticateRepository,
-                               final SubscribeService subscribeService, final UserCardService userCardService,
-                               final CardService cardService) {
-        this.repository = repository;
-        this.authenticateRepository = authenticateRepository;
+    public AuthenticateService(final SubscribeService subscribeService,
+                               final CardService cardService,
+                               final PaymentTransactionService paymentTransactionService) {
         this.subscribeService = subscribeService;
         this.cardService = cardService;
+        this.paymentTransactionService = paymentTransactionService;
     }
 
-    public AuthenticateEntity findByBankTransactionCode(String bankTransactionCode) {
-        return repository.findByBankTransactionCode(bankTransactionCode).orElseThrow();
+    public PaymentTransactionEntryDTO findByBankTransactionCode(String bankTransactionCode) {
+        return paymentTransactionService.findByBankTransactionCodeAndType(bankTransactionCode, PaymentTransactionType.AUTHENTICATE);
     }
 
-    public AuthenticateEntity findById(Long id) {
-        return repository.findById(id).orElseThrow();
+    public PaymentTransactionEntryDTO findById(Long id) {
+        return paymentTransactionService.findByIdAndType(id, PaymentTransactionType.AUTHENTICATE);
     }
 
-    public AuthenticateResponseDTO authenticatePrePayment(final AuthenticateRequestDTO authenticate) {
+    public AuthenticateResponseDTO authenticatePrePayment(final AuthenticateRequestDTO authenticateDto) throws InstanceAlreadyExistsException {
 
-        final String merchantTransactionCode = authenticate.getMerchantTransactionCode();
-        final SubscribeRequestEntity subscribeRequestEntity = subscribeService.findSubscribeRequestByMerchantTransactionCode(
-                merchantTransactionCode);
+        final String merchantTransactionCode = authenticateDto.getMerchantTransactionCode();
+        final String bankTransactionCode = authenticateDto.getBankTransactionCode();
 
-        final SubscribeResponseEntity subscribeResponseEntity = subscribeService.findSubscribeResponseByMerchantTransactionCode(
-                merchantTransactionCode);
+        final PaymentTransactionDTO paymentTransactionDto = paymentTransactionService.findByBankTransactionCode(bankTransactionCode);
+        final MerchantDTO merchantDTO = paymentTransactionDto.getMerchantEntity();
+        final PaymentTransactionEntryDTO subscribeEntry = subscribeService.findSubscribeEntryByPaymentTransactionId(paymentTransactionDto.getId());
 
         final AuthenticateResponseDTO response = new AuthenticateResponseDTO();
 
-        if (!subscribeRequestEntity.getMerchantTransactionCode().equals(merchantTransactionCode)) {
-            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
+        if (!paymentTransactionDto.getMerchantTransactionCode().equals(authenticateDto.getMerchantTransactionCode()) &&
+                !paymentTransactionDto.getBankTransactionCode().equals(authenticateDto.getBankTransactionCode()) &&
+                !paymentTransactionDto.getMerchantEntity().getApiKey().equals(authenticateDto.getApiKey())) {
+
+            response.setMessage(ResponseMessages.bankAndMerchantAndApikeyAreNotValidCombinationError(merchantTransactionCode, bankTransactionCode));
             response.setStatus(false);
             return response;
         }
 
-        if (!subscribeRequestEntity.getApiKey().equals(authenticate.getApiKey())) {
+        if (subscribeEntry == null) {
+            response.setMessage(String.format("Firstly you should subscribe. %s Merchant Transaction Code is not valid.", merchantTransactionCode));
+            response.setStatus(false);
+            return response;
+        }
+
+        if (merchantDTO == null) {
+            response.setMessage(String.format("Merchant doesn't exist by this %s Bank Transaction Code", bankTransactionCode));
+            response.setStatus(false);
+            return response;
+        }
+
+        if (!merchantDTO.getApiKey().equals(authenticateDto.getApiKey())) {
             response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
             response.setStatus(false);
+            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
             return response;
         }
 
-        final String bankTransactionCode = authenticate.getBankTransactionCode();
-        if (!subscribeResponseEntity.getBankTransactionCode().equals(bankTransactionCode)) {
+        if (!paymentTransactionDto.getMerchantTransactionCode().equals(merchantTransactionCode)) {
             response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
             response.setStatus(false);
+            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
             return response;
         }
 
-        final AuthenticateEntity authenticateEntity = new AuthenticateEntity(authenticate.getAmount(), authenticate.getFailureRedirectURL(),
-                                                                             authenticate.getSuccessRedirectURL(),
-                                                                             authenticate.getCurrency(),
-                                                                             ResponseMessages.AUTHENTICATE_SUCCESS,
-                                                                             authenticate.getBankTransactionCode(),
-                                                                             authenticate.getMerchantTransactionCode(),
-                                                                             true,
-                                                                             authenticate.getApiKey());
+        if (!paymentTransactionDto.getBankTransactionCode().equals(bankTransactionCode)) {
+            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
+            response.setStatus(false);
+            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
+            return response;
+        }
 
-        authenticateRepository.save(authenticateEntity);
+        if (!subscribeEntry.getAmount().equals(authenticateDto.getAmount())) {
+            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
+            response.setStatus(false);
+            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
+            return response;
+        }
+
+        if (!subscribeEntry.getCurrency().equals(authenticateDto.getCurrency())) {
+            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
+            response.setStatus(false);
+            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
+            return response;
+        }
+
+        final PaymentTransactionEntryEntity authenticateEntry = createAuthenticateEntry(authenticateDto, paymentTransactionDto);
+        paymentTransactionService.saveEntry(authenticateEntry);
 
         response.setStatus(true);
         response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
-        response.setPaymentUrl("http://localhost:8080/bank/ui/payment-page?bankTransactionCode=" + bankTransactionCode);
+        response.setPaymentUrl("http://localhost:8090/bank/ui/payment-page?bankTransactionCode=" + bankTransactionCode);
 
         return response;
     }
 
-    public String authenticatePaymentProcess(final String bankTransactionCode, final UserPaymentProcessDTO dto) throws InstanceAlreadyExistsException {
-        final AuthenticateEntity           authenticateEntity = findByBankTransactionCode(bankTransactionCode);
-        final Optional<UserPaymentProcess> userPaymentProcess           = userCardService.findByIdAndBankTransactionCode(authenticateEntity.getId(), bankTransactionCode);
+    public String authenticatePaymentProcess(final String bankTransactionCode, final CardDTO dto) {
 
-        if (userPaymentProcess.isPresent()) {
-            throw new InstanceAlreadyExistsException();
-        }
-        if (dto == null || dto.getCardNo() == null || dto.getName() == null || dto.getSurname() == null || dto.getCvc() == null || dto.getExpiredDate() == null) {
-            return "";
+        final PaymentTransactionEntryDTO authenticateEntry = findByBankTransactionCode(bankTransactionCode);
+
+        if (authenticateEntry == null) {
+            return String.format("Transaction with bankTransactionCode %s not found.", bankTransactionCode);
         }
 
-        final Card card = cardService.findByCardNo(dto.getCardNo());
-        if (!card.getCvc().equals(dto.getCvc()) || !card.getExpiredDate().equals(dto.getExpiredDate()) || !card.getName().equals(dto.getName())
-                || !card.getSurname().equals(dto.getSurname()) || !dto.getAmount().equals(card.getAmount()) || !dto.getCurrency().equals(card.getCurrency())) {
-            return "";
+        String validateCardDetailsMessage = validateCardDetails(dto);
+        if (validateCardDetailsMessage != null) {
+            return validateCardDetailsMessage;
         }
 
-        final String[] expiredDateArr     = card.getExpiredDate().split("-");
-        final Integer  monthOfExpiredDate = Integer.valueOf(expiredDateArr[0]);
-        final Integer  yearOfExpiredDate  = Integer.valueOf(String.format("%o" + expiredDateArr[1], 20));
+        final CardDTO cardDTO = cardService.findByCardNo(dto.getCardNo());
 
-        if (yearOfExpiredDate < ZonedDateTime.now().getYear() && monthOfExpiredDate < ZonedDateTime.now().getMonthValue()) {
-            return "";
+        String validationCardAgainstDBMessage = validateCardAgainstDatabase(cardDTO, dto);
+        if (validationCardAgainstDBMessage != null) {
+            return validationCardAgainstDBMessage;
         }
 
-        if(card.getAmount() <= 0){
-            return "";
+        String validationMessage = validateCardExpirationDate(cardDTO);
+        if (validationMessage != null) {
+            return validationMessage;
+        }
+
+        if (cardDTO.getAmount() <= 0) {
+            return "Insufficient balance.";
         }
 
         return null;
     }
+
+    private PaymentTransactionEntryEntity createAuthenticateEntry(final AuthenticateRequestDTO authenticateDto,
+                                                                  final PaymentTransactionDTO paymentTransactionDTO) {
+        final PaymentTransactionEntryEntity authenticateEntry = new PaymentTransactionEntryEntity();
+        authenticateEntry.setAmount(authenticateDto.getAmount());
+        authenticateEntry.setCurrency(authenticateDto.getCurrency());
+        authenticateEntry.setFailedRedirectURL(authenticateDto.getFailureRedirectURL());
+        authenticateEntry.setSuccessRedirectURL(authenticateDto.getSuccessRedirectURL());
+        authenticateEntry.setResultMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
+        authenticateEntry.setTransactionType(PaymentTransactionType.AUTHENTICATE);
+        authenticateEntry.setStatus(true);
+        authenticateEntry.setPaymentTransactionId(paymentTransactionDTO.getId());
+        authenticateEntry.setCreateDate(ZonedDateTime.now());
+        return authenticateEntry;
+    }
+
+    private String validateCardDetails(CardDTO dto) {
+        if (dto == null) {
+            return "CardDTO is null.";
+        }
+        if (dto.getCardNo() == null) {
+            return "Card number is missing.";
+        }
+        if (dto.getName() == null) {
+            return "Cardholder's name is missing.";
+        }
+        if (dto.getSurname() == null) {
+            return "Cardholder's surname is missing.";
+        }
+        if (dto.getCvc() == null) {
+            return "CVC code is missing.";
+        }
+        if (dto.getExpiredDate() == null) {
+            return "Expiration date is missing.";
+        }
+        if (dto.getAmount() == null) {
+            return "Amount is missing.";
+        }
+        if (dto.getCurrency() == null) {
+            return "Currency is missing.";
+        }
+        return null;
+    }
+
+
+    private String validateCardAgainstDatabase(final CardDTO cardDB, final CardDTO request) {
+
+        if (cardDB == null) {
+            return String.format("Card with card number %s not found.", cardDB.getCardNo());
+        }
+        if (!cardDB.getCvc().equals(request.getCvc())) {
+            return "CVC code does not match.";
+        }
+        if (!cardDB.getExpiredDate().equals(request.getExpiredDate())) {
+            return "Expiration date does not match.";
+        }
+        if (!cardDB.getName().equals(request.getName())) {
+            return "Cardholder's name does not match.";
+        }
+        if (!cardDB.getSurname().equals(request.getSurname())) {
+            return "Cardholder's surname does not match.";
+        }
+        if (!request.getCurrency().equals(cardDB.getCurrency())) {
+            return "Currency does not match.";
+        }
+        return null;
+    }
+
+    private String validateCardExpirationDate(CardDTO cardDTO) {
+        final String[] expiredDateArr = cardDTO.getExpiredDate().split("/");
+        final Integer monthOfExpiredDate = Integer.valueOf(expiredDateArr[0]);
+        final Integer yearOfExpiredDate = Integer.valueOf(String.format("20%s", expiredDateArr[1]));
+
+        if (yearOfExpiredDate < ZonedDateTime.now().getYear() ||
+                (yearOfExpiredDate.equals(ZonedDateTime.now().getYear()) && monthOfExpiredDate < ZonedDateTime.now().getMonthValue())) {
+            return "Card is expired.";
+        }
+        return null;
+    }
+
 }
