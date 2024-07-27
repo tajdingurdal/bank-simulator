@@ -1,0 +1,18 @@
+name: solid-bank
+services:
+  solid-bank:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8090:8090"
+    env_file:
+      - variables.env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  postgresql:
+    extends:
+      file: ./postgresql.yml
+      service: postgresql

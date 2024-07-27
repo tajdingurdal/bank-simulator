@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 public class AuthenticateService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticateService.class);
+    private static final String PAYMENT_URL = "http://localhost:8090/bank/checkout";
     private final SubscribeService subscribeService;
     private final CardService cardService;
     private final PaymentTransactionService paymentTransactionService;
@@ -62,13 +63,13 @@ public class AuthenticateService {
         }
 
         if (subscribeEntry == null) {
-            response.setMessage(String.format("Firstly you should subscribe. %s Merchant Transaction Code is not valid.", merchantTransactionCode));
+            response.setMessage(ResponseMessages.subscribeRequired(merchantTransactionCode));
             response.setStatus(false);
             return response;
         }
 
         if (merchantDTO == null) {
-            response.setMessage(String.format("Merchant doesn't exist by this %s Bank Transaction Code", bankTransactionCode));
+            response.setMessage(ResponseMessages.merchantDoesntExist(bankTransactionCode));
             response.setStatus(false);
             return response;
         }
@@ -114,7 +115,7 @@ public class AuthenticateService {
         response.setStatus(true);
         response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
-        response.setPaymentUrl("http://localhost:8090/bank/ui/payment-page?bankTransactionCode=" + bankTransactionCode);
+        response.setPaymentUrl(String.format(PAYMENT_URL + "?bankTransactionCode=%s", bankTransactionCode, bankTransactionCode));
 
         return response;
     }
@@ -124,7 +125,7 @@ public class AuthenticateService {
         final PaymentTransactionEntryDTO authenticateEntry = findByBankTransactionCode(bankTransactionCode);
 
         if (authenticateEntry == null) {
-            return String.format("Transaction with bankTransactionCode %s not found.", bankTransactionCode);
+            return ResponseMessages.transactionNotFound(bankTransactionCode);
         }
 
         String validateCardDetailsMessage = validateCardDetails(dto);

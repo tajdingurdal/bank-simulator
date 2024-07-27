@@ -1,11 +1,8 @@
 package com.solid.soft.solid_soft_bank.resource;
 
-import com.solid.soft.solid_soft_bank.model.CardEntity;
 import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
-import com.solid.soft.solid_soft_bank.repository.CardRepository;
 import com.solid.soft.solid_soft_bank.service.AuthenticateService;
-import com.solid.soft.solid_soft_bank.service.SubscribeService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/bank/ui")
 public class BankUIResource {
@@ -27,38 +22,11 @@ public class BankUIResource {
     private static final String OTP_CODE = "12345";
 
     private final AuthenticateService authenticateService;
-    private final SubscribeService subscribeService;
-    private final CardRepository cardRepository;
 
-    public BankUIResource(final AuthenticateService authenticateService,
-                          final SubscribeService subscribeService, final CardRepository cardRepository) {
+    public BankUIResource(final AuthenticateService authenticateService) {
         this.authenticateService = authenticateService;
-        this.subscribeService = subscribeService;
-        this.cardRepository = cardRepository;
     }
 
-    @RequestMapping(value = "/payment-page", method = RequestMethod.GET)
-    public String showPaymentForm(@RequestParam String bankTransactionCode, Model model) {
-
-        final PaymentTransactionEntryDTO authenticateEntry = authenticateService.findByBankTransactionCode(bankTransactionCode);
-        final PaymentTransactionEntryDTO subsribeEntry = subscribeService.findSubscribeEntryByMerchantTransactionCode(
-                authenticateEntry.getPaymentTransactionDto().getMerchantTransactionCode());
-
-        if (!subsribeEntry.isStatus() || !authenticateEntry.isStatus()) {
-            return "redirect:" + authenticateEntry.getFailedRedirectURL();
-        }
-
-        final CardDTO card = new CardDTO();
-        card.setAmount(authenticateEntry.getAmount());
-        card.setCurrency(authenticateEntry.getCurrency());
-        addSampleCardOnForm(card);
-
-        model.addAttribute("card", card);
-        model.addAttribute("bankTransactionCode", bankTransactionCode);
-
-        log.debug("CardDTO: {}", card);
-        return "payment";
-    }
 
     @RequestMapping(value = "/pay", method = RequestMethod.POST)
     public String pay(@RequestParam String bankTransactionCode, @ModelAttribute("card") CardDTO card, Model model) {
@@ -99,16 +67,5 @@ public class BankUIResource {
         return "redirect:" + authenticateEntity.getSuccessRedirectURL();
     }
 
-    private void addSampleCardOnForm(final CardDTO card) {
-        final String sampleCardNo = "1234567890";
-        final Optional<CardEntity> cardEntity = cardRepository.findByCardNo(sampleCardNo);
-        if(cardEntity.isPresent()){
-            card.setCardNo(sampleCardNo);
-            card.setName(cardEntity.get().getName());
-            card.setSurname(cardEntity.get().getSurname());
-            card.setCvc(cardEntity.get().getCvc());
-            card.setExpiredDate(cardEntity.get().getExpiredDate());
-        }
-    }
 
 }

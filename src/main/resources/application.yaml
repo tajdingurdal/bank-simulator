@@ -15,3 +15,12 @@ spring:
 logging:
   level:
     com.solid.soft.solid_soft_bank: debug
+
+
+sample:
+  card:
+    mehmetCardNo: '1234567890'
+# 1234567891
+# 1234567892
+# 1234567893
+# 1234567894

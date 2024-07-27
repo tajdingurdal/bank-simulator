@@ -1,4 +1,4 @@
-name: solid-soft-bank
+name: solid-bank
 services:
   postgresql:
     container_name: postgresql

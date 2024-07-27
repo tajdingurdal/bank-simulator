@@ -43,6 +43,19 @@ public class ResponseMessages {
     }
 
     public static String bankAndMerchantAndApikeyAreNotValidCombinationError(final String merchantTransactionCode, final String bankTransactionCode) {
-        return String.format("Merchant Transaction Code %s And Bank Transaction Code %s And API Key should be a valid combination.", merchantTransactionCode, bankTransactionCode);
+        return String.format("Merchant Transaction Code %s And Bank Transaction Code %s And API Key should be a valid combination.", merchantTransactionCode,
+                bankTransactionCode);
+    }
+
+    public static String subscribeRequired(final String merchantTransactionCode) {
+        return String.format("Firstly you should subscribe. %s Merchant Transaction Code is not valid.", merchantTransactionCode);
+    }
+
+    public static String merchantDoesntExist(final String bankTransactionCode) {
+        return String.format("Merchant doesn't exist by this %s Bank Transaction Code", bankTransactionCode);
+    }
+
+    public static String transactionNotFound(String bankTransactionCode) {
+        return String.format("Transaction with bankTransactionCode %s not found.", bankTransactionCode);
     }
 }

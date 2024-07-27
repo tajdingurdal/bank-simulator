@@ -1,6 +1,0 @@
-name: solid-soft-bank
-services:
-  postgresql:
-    extends:
-      file: ./postgresql.yml
-      service: postgresql
