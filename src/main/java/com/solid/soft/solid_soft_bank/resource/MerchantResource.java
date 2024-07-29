@@ -21,13 +21,17 @@ public class MerchantResource {
     public MerchantResource(final MerchantService merchantService) {this.merchantService = merchantService;}
 
     @PostMapping
-    public MerchantDTO create(@RequestParam String name, @RequestParam String webSite) throws InstanceAlreadyExistsException {
-        return merchantService.create(name, webSite);
+    public ResponseEntity<MerchantDTO> create(@RequestParam String name, @RequestParam String webSite) throws InstanceAlreadyExistsException {
+        return ResponseEntity.ok(merchantService.create(name, webSite));
     }
 
     @GetMapping("/{id}")
-    public MerchantDTO findMerchantById(@PathVariable("id") Long id) {
-        return merchantService.findMerchantById(id);
+    public ResponseEntity<MerchantDTO> findMerchantById(@PathVariable("id") Long id) {
+        final MerchantDTO merchantDTO = merchantService.findMerchantById(id);
+        if (merchantDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(merchantDTO);
     }
 
     @GetMapping
