@@ -2,9 +2,7 @@ package com.solid.soft.solid_soft_bank.service;
 
 import com.solid.soft.solid_soft_bank.mapper.MerchantMapper;
 import com.solid.soft.solid_soft_bank.model.MerchantEntity;
-import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntity;
 import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
-import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
 import com.solid.soft.solid_soft_bank.repository.MerchantRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +49,11 @@ public class MerchantService {
     public MerchantDTO findMerchantById(Long id) {
         final Optional<MerchantEntity> merchantEntity = repository.findById(id);
         log.debug("Found Merchant by id {}", merchantEntity);
+        return merchantEntity.map(mapper::toDto).orElse(null);
+    }
+
+    public MerchantDTO findMerchantByNameAndWebsite(final String name, final String webSite) {
+        final Optional<MerchantEntity> merchantEntity = repository.findByNameAndWebSite(name, webSite);
         return merchantEntity.map(mapper::toDto).orElse(null);
     }
 }

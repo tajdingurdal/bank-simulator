@@ -2,6 +2,7 @@ package com.solid.soft.solid_soft_bank.resource;
 
 import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
 import com.solid.soft.solid_soft_bank.service.MerchantService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,5 +28,14 @@ public class MerchantResource {
     @GetMapping("/{id}")
     public MerchantDTO findMerchantById(@PathVariable("id") Long id) {
         return merchantService.findMerchantById(id);
+    }
+
+    @GetMapping
+    public ResponseEntity<MerchantDTO> findMerchantByNameAndWebsite(@RequestParam String name, @RequestParam String webSite) {
+        final MerchantDTO merchantDTO = merchantService.findMerchantByNameAndWebsite(name, webSite);
+        if (merchantDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(merchantDTO);
     }
 }

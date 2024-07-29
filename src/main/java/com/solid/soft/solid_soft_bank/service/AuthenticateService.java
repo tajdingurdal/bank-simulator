@@ -1,6 +1,5 @@
 package com.solid.soft.solid_soft_bank.service;
 
-import com.solid.soft.solid_soft_bank.model.CardEntity;
 import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
 import com.solid.soft.solid_soft_bank.model.dto.AuthenticateRequestDTO;
 import com.solid.soft.solid_soft_bank.model.dto.AuthenticateResponseDTO;

@@ -14,4 +14,6 @@ public interface MerchantRepository extends JpaRepository<MerchantEntity, Long> 
     Optional<MerchantEntity> findByName(String name);
 
     Optional<MerchantEntity> findByWebSite(String website);
+
+    Optional<MerchantEntity> findByNameAndWebSite(String name, String website);
 }
