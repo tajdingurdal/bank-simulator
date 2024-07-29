@@ -42,4 +42,13 @@ public class MerchantResource {
         }
         return ResponseEntity.ok(merchantDTO);
     }
+
+    @GetMapping("/api-key")
+    public ResponseEntity<MerchantDTO> findMerchantByApiKey(@RequestParam String apiKey) {
+        final MerchantDTO merchantDTO = merchantService.findByApikey(apiKey);
+        if (merchantDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(merchantDTO);
+    }
 }

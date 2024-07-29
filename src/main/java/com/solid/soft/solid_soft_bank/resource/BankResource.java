@@ -11,6 +11,7 @@ import com.solid.soft.solid_soft_bank.service.SubscribeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,12 +50,12 @@ public class BankResource {
 
     @PostMapping("/subscribe")
     @ResponseBody
-    public SubscribeResponseDTO subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
-                                          @RequestParam(name = "apiKey") String apiKey,
-                                          @RequestParam(name = "amount") Double amount,
-                                          @RequestParam(name = "currency") String currency) {
+    public ResponseEntity<SubscribeResponseDTO> subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
+                                    @RequestParam(name = "apiKey") String apiKey,
+                                    @RequestParam(name = "amount") Double amount,
+                                    @RequestParam(name = "currency") String currency) {
 
-        return subscribeService.subscribe(merchantTransactionCode, apiKey, amount, currency);
+        return ResponseEntity.ok(subscribeService.subscribe(merchantTransactionCode, apiKey, amount, currency));
     }
 
     @GetMapping("/checkout")
