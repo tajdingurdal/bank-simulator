@@ -2,17 +2,27 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 public class SubscribeResponseDTO {
 
+    private Long id;
     private String bankTransactionCode;
     private String message;
     private boolean isSubscribe;
 
-    public SubscribeResponseDTO(final String bankTransactionCode, final String message, boolean isSubscribe) {
+    public SubscribeResponseDTO(final Long id, final String bankTransactionCode, final String message, boolean isSubscribe) {
+        this.id = id;
         this.bankTransactionCode = bankTransactionCode;
         this.message = message;
-        this.isSubscribe= isSubscribe;
+        this.isSubscribe = isSubscribe;
     }
 
     public SubscribeResponseDTO() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
     }
 
     public String getBankTransactionCode() {

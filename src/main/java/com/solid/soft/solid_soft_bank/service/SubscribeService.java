@@ -84,6 +84,7 @@ public class SubscribeService {
         entryRepository.save(subscribeEntity);
 
         // Return
+        response.setId(savedPaymentTransactionEntity.getId());
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
