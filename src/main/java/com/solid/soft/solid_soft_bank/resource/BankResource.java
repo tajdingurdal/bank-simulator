@@ -51,11 +51,23 @@ public class BankResource {
     @PostMapping("/subscribe")
     @ResponseBody
     public ResponseEntity<SubscribeResponseDTO> subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
-                                    @RequestParam(name = "apiKey") String apiKey,
-                                    @RequestParam(name = "amount") Double amount,
-                                    @RequestParam(name = "currency") String currency) {
+                                                          @RequestParam(name = "apiKey") String apiKey,
+                                                          @RequestParam(name = "amount") Double amount,
+                                                          @RequestParam(name = "currency") String currency) {
 
         return ResponseEntity.ok(subscribeService.subscribe(merchantTransactionCode, apiKey, amount, currency));
+    }
+
+    @GetMapping("/subscribe")
+    @ResponseBody
+    public ResponseEntity<PaymentTransactionEntryDTO> findSubscribeByMerchantTransactionCode(
+            @RequestParam(name = "merchantTransactionCode") String merchantTransactionCode) {
+
+        final PaymentTransactionEntryDTO responseDTO = subscribeService.findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode);
+        if (responseDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/checkout")
