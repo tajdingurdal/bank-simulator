@@ -109,8 +109,9 @@ public class AuthenticateService {
         }
 
         final PaymentTransactionEntryEntity authenticateEntry = createAuthenticateEntry(authenticateDto, paymentTransactionDto);
-        paymentTransactionService.saveEntry(authenticateEntry);
+        final PaymentTransactionEntryEntity paymentTransactionEntryEntity = paymentTransactionService.saveEntry(authenticateEntry);
 
+        response.setId(paymentTransactionEntryEntity.getId());
         response.setStatus(true);
         response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
