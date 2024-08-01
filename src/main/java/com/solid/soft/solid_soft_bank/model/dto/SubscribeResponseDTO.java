@@ -48,4 +48,14 @@ public class SubscribeResponseDTO {
     public void setSubscribe(final boolean subscribe) {
         isSubscribe = subscribe;
     }
+
+    @Override
+    public String toString() {
+        return "SubscribeResponseDTO{" +
+                "id=" + id +
+                ", bankTransactionCode='" + bankTransactionCode + '\'' +
+                ", message='" + message + '\'' +
+                ", isSubscribe=" + isSubscribe +
+                '}';
+    }
 }

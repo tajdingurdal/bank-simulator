@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class SubscribeService {
     private final MerchantService merchantService;
     private final PaymentTransactionEntryRepository entryRepository;
 
-    private final List<String> currencies = List.of("USD", "TL", "EURO");
+    private final List<String> currencies = List.of("USD", "TRY", "EURO");
 
 
     public SubscribeService(final MerchantService merchantService,
@@ -48,13 +49,36 @@ public class SubscribeService {
         return paymentTransactionService.findSubscribeEntryByPaymentTransactionIdAndType(paymentTransactionId, PaymentTransactionType.SUBSCRIBE);
     }
 
-    public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
+    public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) throws IllegalStateException {
 
         final SubscribeResponseDTO response = new SubscribeResponseDTO();
         final String validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
         if (validationResult != null) {
+            final PaymentTransactionEntryEntity subscribeEntry = new PaymentTransactionEntryEntity();
+            final PaymentTransactionEntity paymentTransactionEntity = new PaymentTransactionEntity();
+
+            paymentTransactionEntity.setMerchantTransactionCode(merchantTransactionCode);
+            paymentTransactionEntity.setBankTransactionCode(null);
+            paymentTransactionEntity.setMerchandId(merchantService.findByApikey(apiKey).getId());
+            final PaymentTransactionEntity savedPaymentTransactionEntity = paymentTransactionService.savePaymentTransaction(paymentTransactionEntity);
+
+            subscribeEntry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
+            subscribeEntry.setStatus(false);
+            subscribeEntry.setResultMessage(validationResult);
+            subscribeEntry.setSuccessRedirectURL(null);
+            subscribeEntry.setFailedRedirectURL(null);
+            subscribeEntry.setAmount(amount);
+            subscribeEntry.setCurrency(currency);
+            subscribeEntry.setCreateDate(ZonedDateTime.now());
+            subscribeEntry.setPaymentTransactionId(savedPaymentTransactionEntity.getId());
+            final PaymentTransactionEntryEntity save = entryRepository.save(subscribeEntry);
+
+            response.setId(save.getId());
             response.setMessage(validationResult);
             response.setSubscribe(false);
+            response.setBankTransactionCode(null);
+
+            log.debug("Returning subscribe response... {}", response);
             return response;
         }
 
@@ -81,10 +105,10 @@ public class SubscribeService {
         subscribeEntity.setCreateDate(ZonedDateTime.now());
         subscribeEntity.setTransactionType(PaymentTransactionType.SUBSCRIBE);
 
-        entryRepository.save(subscribeEntity);
+        final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(subscribeEntity);
 
         // Return
-        response.setId(savedPaymentTransactionEntity.getId());
+        response.setId(savedPaymentTransactionEntryEntity.getId());
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
@@ -104,10 +128,6 @@ public class SubscribeService {
 
         if (!merchantDto.getApiKey().equals(apiKey)) {
             return ResponseMessages.invalidApiKeyMessage(apiKey);
-        }
-
-        if (merchantTransactionCode.length() != 16) {
-            return ResponseMessages.invalidTransactionCodeLengthMessage(merchantTransactionCode);
         }
 
         if (findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode) != null) {

@@ -46,6 +46,14 @@ public class PaymentTransactionService {
         return entryRepository.save(entity);
     }
 
+    public PaymentTransactionEntity savePaymentTransaction(PaymentTransactionEntity entity) throws IllegalStateException {
+
+        if (Objects.nonNull(entity.getId())) {
+            throw new IllegalStateException("New PaymentTransactionEntryEntity cannot have an ID.");
+        }
+        return paymentTransactionRepository.save(entity);
+    }
+
 
     public PaymentTransactionDTO findByBankTransactionCode(String bankTransactionCode) {
         final Optional<PaymentTransactionEntity> entity = paymentTransactionRepository.findByBankTransactionCode(bankTransactionCode);
@@ -59,7 +67,8 @@ public class PaymentTransactionService {
 
     public PaymentTransactionEntryDTO findByBankTransactionCodeAndType(String bankTransactionCode, PaymentTransactionType type) {
         return entryRepository.findByBankTransactionCodeAndTransactionType(bankTransactionCode, type)
-                              .map(entity -> paymentTransactionEntryMapper.toDtoWithTransaction(entity, paymentTransactionMapper.toDto(entity.getPaymentTransaction())))
+                              .map(entity -> paymentTransactionEntryMapper.toDtoWithTransaction(entity,
+                                      paymentTransactionMapper.toDto(entity.getPaymentTransaction())))
                               .orElse(null);
     }
 

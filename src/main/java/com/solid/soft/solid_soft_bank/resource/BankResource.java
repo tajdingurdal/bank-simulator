@@ -42,36 +42,28 @@ public class BankResource {
         this.cardService = cardService;
     }
 
-    @PostMapping("/authenticate")
-    @ResponseBody
-    public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) throws InstanceAlreadyExistsException {
-        return authenticateService.authenticatePrePayment(authenticateRequestDTO);
-    }
-
     @PostMapping("/subscribe")
     @ResponseBody
     public ResponseEntity<SubscribeResponseDTO> subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
                                                           @RequestParam(name = "apiKey") String apiKey,
                                                           @RequestParam(name = "amount") Double amount,
                                                           @RequestParam(name = "currency") String currency) {
-
+        log.debug("Post request to subscribe...");
         return ResponseEntity.ok(subscribeService.subscribe(merchantTransactionCode, apiKey, amount, currency));
     }
 
-    @GetMapping("/subscribe")
+    @PostMapping("/authenticate")
     @ResponseBody
-    public ResponseEntity<PaymentTransactionEntryDTO> findSubscribeByMerchantTransactionCode(
-            @RequestParam(name = "merchantTransactionCode") String merchantTransactionCode) {
-
-        final PaymentTransactionEntryDTO responseDTO = subscribeService.findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode);
-        if (responseDTO == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(responseDTO);
+    public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) throws InstanceAlreadyExistsException {
+        log.debug("Post request to authenticate...");
+        return authenticateService.authenticatePrePayment(authenticateRequestDTO);
     }
+
 
     @GetMapping("/checkout")
     public String showPaymentForm(@RequestParam String bankTransactionCode, Model model) {
+
+        log.debug("Get request to checkout...");
 
         final PaymentTransactionEntryDTO authenticateEntry = authenticateService.findByBankTransactionCode(bankTransactionCode);
         final PaymentTransactionEntryDTO subsribeEntry = subscribeService.findSubscribeEntryByMerchantTransactionCode(
@@ -91,6 +83,18 @@ public class BankResource {
 
         log.debug("CardDTO: {}", card);
         return "payment";
+    }
+
+
+    @GetMapping("/subscribe")
+    @ResponseBody
+    public ResponseEntity<PaymentTransactionEntryDTO> findSubscribeByMerchantTransactionCode(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode) {
+
+        final PaymentTransactionEntryDTO responseDTO = subscribeService.findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode);
+        if (responseDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(responseDTO);
     }
 
     private void addSampleCardOnForm(final CardDTO card) {
