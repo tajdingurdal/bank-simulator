@@ -43,6 +43,9 @@ public class AuthenticateService {
 
     public AuthenticateResponseDTO authenticatePrePayment(final AuthenticateRequestDTO authenticateDto) throws InstanceAlreadyExistsException {
 
+        log.debug("Starting pre-payment authentication process: Merchant Transaction Code: {}, Bank Transaction Code: {}, API Key: {}",
+                authenticateDto.getMerchantTransactionCode(), authenticateDto.getBankTransactionCode(), authenticateDto.getApiKey());
+
         final String merchantTransactionCode = authenticateDto.getMerchantTransactionCode();
         final String bankTransactionCode = authenticateDto.getBankTransactionCode();
 
@@ -56,24 +59,30 @@ public class AuthenticateService {
                 !paymentTransactionDto.getBankTransactionCode().equals(authenticateDto.getBankTransactionCode()) &&
                 !paymentTransactionDto.getMerchantEntity().getApiKey().equals(authenticateDto.getApiKey())) {
 
+            log.warn("Invalid combination of Merchant Transaction Code, Bank Transaction Code, and API Key: {}, {}, {}",
+                    merchantTransactionCode, bankTransactionCode, authenticateDto.getApiKey());
+
             response.setMessage(ResponseMessages.bankAndMerchantAndApikeyAreNotValidCombinationError(merchantTransactionCode, bankTransactionCode));
             response.setStatus(false);
             return response;
         }
 
         if (subscribeEntry == null) {
+            log.warn("Subscription entry is required but not found for Merchant Transaction Code: {}", merchantTransactionCode);
             response.setMessage(ResponseMessages.subscribeRequired(merchantTransactionCode));
             response.setStatus(false);
             return response;
         }
 
         if (merchantDTO == null) {
+            log.warn("Merchant does not exist for Bank Transaction Code: {}", bankTransactionCode);
             response.setMessage(ResponseMessages.merchantDoesntExist(bankTransactionCode));
             response.setStatus(false);
             return response;
         }
 
         if (!merchantDTO.getApiKey().equals(authenticateDto.getApiKey())) {
+            log.warn("API Key does not match for Merchant: {}", merchantDTO.getId());
             response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
             response.setStatus(false);
             log.warn(ResponseMessages.AUTHENTICATE_FAILED);
@@ -81,6 +90,7 @@ public class AuthenticateService {
         }
 
         if (!paymentTransactionDto.getMerchantTransactionCode().equals(merchantTransactionCode)) {
+            log.warn("Merchant Transaction Code does not match: {}", merchantTransactionCode);
             response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
             response.setStatus(false);
             log.warn(ResponseMessages.AUTHENTICATE_FAILED);
@@ -88,6 +98,7 @@ public class AuthenticateService {
         }
 
         if (!paymentTransactionDto.getBankTransactionCode().equals(bankTransactionCode)) {
+            log.warn("Bank Transaction Code does not match: {}", bankTransactionCode);
             response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
             response.setStatus(false);
             log.warn(ResponseMessages.AUTHENTICATE_FAILED);
@@ -95,6 +106,7 @@ public class AuthenticateService {
         }
 
         if (!subscribeEntry.getAmount().equals(authenticateDto.getAmount())) {
+            log.warn("Transaction amount does not match: {}", authenticateDto.getAmount());
             response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
             response.setStatus(false);
             log.warn(ResponseMessages.AUTHENTICATE_FAILED);
@@ -102,6 +114,7 @@ public class AuthenticateService {
         }
 
         if (!subscribeEntry.getCurrency().equals(authenticateDto.getCurrency())) {
+            log.warn("Transaction currency does not match: {}", authenticateDto.getCurrency());
             response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
             response.setStatus(false);
             log.warn(ResponseMessages.AUTHENTICATE_FAILED);
@@ -117,19 +130,27 @@ public class AuthenticateService {
         response.setBankTransactionCode(bankTransactionCode);
         response.setPaymentUrl(String.format(PAYMENT_URL + "?bankTransactionCode=%s", bankTransactionCode, bankTransactionCode));
 
+        log.debug("Pre-payment authentication process completed: Bank Transaction Code: {}, Payment URL: {}",
+                bankTransactionCode, response.getPaymentUrl());
+
         return response;
     }
 
     public String authenticatePaymentProcess(final String bankTransactionCode, final CardDTO dto) {
 
+        log.debug("Starting payment authentication process: Bank Transaction Code: {}, Card Number: {}",
+                bankTransactionCode, dto.getCardNo());
+
         final PaymentTransactionEntryDTO authenticateEntry = findByBankTransactionCode(bankTransactionCode);
 
         if (authenticateEntry == null) {
+            log.warn("Transaction not found for Bank Transaction Code: {}", bankTransactionCode);
             return ResponseMessages.transactionNotFound(bankTransactionCode);
         }
 
         String validateCardDetailsMessage = validateCardDetails(dto);
         if (validateCardDetailsMessage != null) {
+            log.warn("Card details validation failed: {}", validateCardDetailsMessage);
             return validateCardDetailsMessage;
         }
 
@@ -137,17 +158,22 @@ public class AuthenticateService {
 
         String validationCardAgainstDBMessage = validateCardAgainstDatabase(cardDTO, dto);
         if (validationCardAgainstDBMessage != null) {
+            log.warn("Card validation against database failed: {}", validationCardAgainstDBMessage);
             return validationCardAgainstDBMessage;
         }
 
         String validationMessage = validateCardExpirationDate(cardDTO);
         if (validationMessage != null) {
+            log.warn("Card expiration date validation failed: {}", validationMessage);
             return validationMessage;
         }
 
         if (cardDTO.getAmount() <= 0) {
+            log.warn("Insufficient balance for Card Number: {}", dto.getCardNo());
             return "Insufficient balance.";
         }
+
+        log.debug("Payment authentication process completed successfully: Bank Transaction Code: {}", bankTransactionCode);
 
         return null;
     }

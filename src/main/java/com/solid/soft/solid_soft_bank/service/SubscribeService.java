@@ -51,9 +51,15 @@ public class SubscribeService {
 
     public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) throws IllegalStateException {
 
+        log.debug("Starting subscription process: Merchant Transaction Code: {}, API Key: {}, Amount: {}, Currency: {}",
+                merchantTransactionCode, apiKey, amount, currency);
+
         final SubscribeResponseDTO response = new SubscribeResponseDTO();
         final String validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
+
         if (validationResult != null) {
+            log.warn("Subscription validation failed: {}", validationResult);
+
             final PaymentTransactionEntryEntity subscribeEntry = new PaymentTransactionEntryEntity();
             final PaymentTransactionEntity paymentTransactionEntity = new PaymentTransactionEntity();
 
@@ -78,7 +84,7 @@ public class SubscribeService {
             response.setSubscribe(false);
             response.setBankTransactionCode(null);
 
-            log.debug("Returning subscribe response... {}", response);
+            log.debug("Returning subscription response due to validation failure: {}", response);
             return response;
         }
 
@@ -112,34 +118,49 @@ public class SubscribeService {
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
+
+        log.debug("Subscription process completed successfully: {}", response);
+
         return response;
     }
 
     private String validateSubscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
 
+
         if (merchantTransactionCode == null || apiKey == null || amount == null || currency == null) {
-            return ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency);
+            final String message = ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency);
+            log.warn("Validation failed: {}", message);
+            return message;
         }
 
         final MerchantDTO merchantDto = merchantService.findByApikey(apiKey);
         if (merchantDto == null) {
-            return ResponseMessages.merchantNotFoundByApiKey(apiKey);
+            String message = ResponseMessages.merchantNotFoundByApiKey(apiKey);
+            log.warn("Validation failed: {}", message);
+            return message;
         }
 
         if (!merchantDto.getApiKey().equals(apiKey)) {
-            return ResponseMessages.invalidApiKeyMessage(apiKey);
+            String message = ResponseMessages.invalidApiKeyMessage(apiKey);
+            log.warn("Validation failed: {}", message);
+            return message;
         }
 
         if (findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode) != null) {
-            return ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
+            String message = ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
+            log.warn("Validation failed: {}", message);
+            return message;
         }
 
         if (amount < 0 || amount > 1000000) {
-            return ResponseMessages.invalidAmountMessage(amount);
+            String message = ResponseMessages.invalidAmountMessage(amount);
+            log.warn("Validation failed: {}", message);
         }
 
         if (!currencies.contains(currency)) {
-            return ResponseMessages.invalidCurrencyMessage(currency);
+            String message = ResponseMessages.invalidCurrencyMessage(currency);
+            log.warn("Validation failed: {}", message);
+            return message;
         }
 
         return null;
