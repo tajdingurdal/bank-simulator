@@ -29,8 +29,8 @@ public class BankResource {
 
     private static final Logger log = LoggerFactory.getLogger(BankResource.class);
 
-    @Value("${sample.card.mehmetCardNo}")
-    private String mehmetCardNo;
+    @Value("${sample.card.sample-card-no}")
+    private String sampleCardNo;
 
     private final AuthenticateService authenticateService;
     private final SubscribeService subscribeService;
@@ -98,9 +98,9 @@ public class BankResource {
     }
 
     private void addSampleCardOnForm(final CardDTO card) {
-        final CardDTO cardEntity = cardService.findByCardNo(mehmetCardNo);
+        final CardDTO cardEntity = cardService.findByCardNo(sampleCardNo);
         if (cardEntity != null) {
-            card.setCardNo(mehmetCardNo);
+            card.setCardNo(sampleCardNo);
             card.setName(cardEntity.getName());
             card.setSurname(cardEntity.getSurname());
             card.setCvc(cardEntity.getCvc());
