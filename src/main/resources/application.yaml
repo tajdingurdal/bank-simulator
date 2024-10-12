@@ -9,8 +9,14 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     database: postgresql
+  liquibase:
+    enabled: true
+    change-log: classpath:/liquibase/changelog/master.xml
+    contexts: ${spring.profiles.active}
+  profiles:
+    active: dev
 
 logging:
   level:

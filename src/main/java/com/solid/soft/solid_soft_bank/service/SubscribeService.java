@@ -77,9 +77,9 @@ public class SubscribeService {
             subscribeEntry.setCurrency(currency);
             subscribeEntry.setCreateDate(ZonedDateTime.now());
             subscribeEntry.setPaymentTransactionId(savedPaymentTransactionEntity.getId());
-            final PaymentTransactionEntryEntity save = entryRepository.save(subscribeEntry);
+            final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(subscribeEntry);
 
-            response.setId(save.getId());
+            response.setId(savedPaymentTransactionEntryEntity.getId());
             response.setMessage(validationResult);
             response.setSubscribe(false);
             response.setBankTransactionCode(null);

@@ -130,8 +130,7 @@ public class AuthenticateService {
         response.setBankTransactionCode(bankTransactionCode);
         response.setPaymentUrl(String.format(PAYMENT_URL + "?bankTransactionCode=%s", bankTransactionCode, bankTransactionCode));
 
-        log.debug("Pre-payment authentication process completed: Bank Transaction Code: {}, Payment URL: {}",
-                bankTransactionCode, response.getPaymentUrl());
+        log.debug("Pre-payment authentication process completed: Bank Transaction Code: {}, Payment URL: {}", bankTransactionCode, response.getPaymentUrl());
 
         return response;
     }
