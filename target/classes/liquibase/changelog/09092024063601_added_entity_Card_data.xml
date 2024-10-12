@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--
+      Added data to the entity Card.
+  -->
+    <changeSet id="09092024063601-data" author="system" context="dev">
+        <loadData
+                tableName="card"
+                separator=";"
+                file="liquibase/data/fake_data/card.csv"
+                usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="surname" type="string"/>
+            <column name="card_no" type="string"/>
+            <column name="expire_date" type="string"/>
+            <column name="cvc" type="string"/>
+            <column name="amount" type="numeric"/>
+            <column name="currency" type="string"/>
+        </loadData>
+
+    </changeSet>
+
+</databaseChangeLog>

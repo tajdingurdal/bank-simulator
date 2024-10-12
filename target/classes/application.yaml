@@ -1,0 +1,32 @@
+server.port: 8090
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5431/solid-bank
+    username: postgres
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    database: postgresql
+  liquibase:
+    enabled: true
+    change-log: classpath:/liquibase/changelog/master.xml
+    contexts: ${spring.profiles.active}
+  profiles:
+    active: dev
+
+logging:
+  level:
+    com.solid.soft.solid_soft_bank: debug
+
+
+sample:
+  card:
+    mehmetCardNo: '1234567890'
+# 1234567891
+# 1234567892
+# 1234567893
+# 1234567894
