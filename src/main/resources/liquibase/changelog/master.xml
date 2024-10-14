@@ -20,6 +20,7 @@
 
     <!-- FAKE DATA -->
     <include file="/liquibase/changelog/09092024063601_added_entity_Card_data.xml" relativeToChangelogFile="false"/>
+    <include file="/liquibase/changelog/09092024063633_added_entity_Merchant_data.xml" relativeToChangelogFile="false"/>
 
     <!-- PROD DATA -->
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!--
+      Added data to the entity Merchant.
+  -->
+    <changeSet id="09092024063633-data" author="system" context="dev">
+        <loadData
+                tableName="merchant"
+                separator=";"
+                file="liquibase/data/fake_data/merchant.csv"
+                usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="web_site" type="string"/>
+            <column name="api_key" type="text"/>
+        </loadData>
+
+    </changeSet>
+
+</databaseChangeLog>
