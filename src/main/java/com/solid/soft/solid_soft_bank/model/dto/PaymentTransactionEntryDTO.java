@@ -2,8 +2,6 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 
-import java.time.ZonedDateTime;
-
 public class PaymentTransactionEntryDTO extends BaseDTO{
 
     private PaymentTransactionType transactionType;
@@ -19,8 +17,6 @@ public class PaymentTransactionEntryDTO extends BaseDTO{
     private Double amount;
 
     private String currency;
-
-    private ZonedDateTime createDate;
 
     private Long paymentTransactionId;
 
@@ -83,14 +79,6 @@ public class PaymentTransactionEntryDTO extends BaseDTO{
 
     public void setCurrency(final String currency) {
         this.currency = currency;
-    }
-
-    public ZonedDateTime getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(final ZonedDateTime createDate) {
-        this.createDate = createDate;
     }
 
     public Long getPaymentTransactionId() {

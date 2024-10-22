@@ -68,9 +68,6 @@ public class AuthenticateService {
 
     public String authenticatePaymentProcess(final String bankTransactionCode, final CardDTO dto) {
 
-        log.debug("Starting payment authentication process: Bank Transaction Code: {}, Card Number: {}",
-                bankTransactionCode, dto.getCardNo());
-
         final PaymentTransactionEntryDTO authenticateEntry = findByBankTransactionCode(bankTransactionCode);
 
         if (authenticateEntry == null) {
@@ -78,10 +75,10 @@ public class AuthenticateService {
             return ResponseMessages.transactionNotFound(bankTransactionCode);
         }
 
-        String validateCardDetailsMessage = checkMissingCardDetails(dto);
-        if (validateCardDetailsMessage != null) {
-            log.warn("Card details validation failed: {}", validateCardDetailsMessage);
-            return validateCardDetailsMessage;
+        String checkMissingCardDetails = checkMissingCardDetails(dto);
+        if (checkMissingCardDetails != null) {
+            log.warn("Card details validation failed: {}", checkMissingCardDetails);
+            return checkMissingCardDetails;
         }
 
         final CardDTO cardDTOFromDB = cardService.findByCardNo(dto.getCardNo());

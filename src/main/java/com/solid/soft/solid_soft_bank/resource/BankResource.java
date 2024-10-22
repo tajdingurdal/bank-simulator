@@ -76,7 +76,7 @@ public class BankResource {
         final CardDTO card = new CardDTO();
         card.setAmount(authenticateEntry.getAmount());
         card.setCurrency(authenticateEntry.getCurrency());
-        addSampleCardOnForm(card);
+       // addSampleCardOnForm(card);
 
         model.addAttribute("card", card);
         model.addAttribute("bankTransactionCode", bankTransactionCode);
