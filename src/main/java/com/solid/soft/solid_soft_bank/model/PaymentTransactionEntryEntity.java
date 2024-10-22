@@ -10,8 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import java.time.ZonedDateTime;
-
 @Entity
 @Table(name = "payment_transaction_entry")
 public class PaymentTransactionEntryEntity extends BaseEntity {
@@ -37,9 +35,6 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
 
     @Column(name = "currency")
     private String currency;
-
-    @Column(name = "create_date")
-    private ZonedDateTime createDate;
 
     @Column(name = "payment_transaction_id", nullable = false)
     private Long paymentTransactionId;
@@ -102,14 +97,6 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
 
     public void setAmount(final Double amount) {
         this.amount = amount;
-    }
-
-    public ZonedDateTime getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(final ZonedDateTime createDate) {
-        this.createDate = createDate;
     }
 
     public Long getPaymentTransactionId() {

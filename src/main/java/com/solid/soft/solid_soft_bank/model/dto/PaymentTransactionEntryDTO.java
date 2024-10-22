@@ -4,9 +4,7 @@ import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 
 import java.time.ZonedDateTime;
 
-public class PaymentTransactionEntryDTO {
-
-    private Long id;
+public class PaymentTransactionEntryDTO extends BaseDTO{
 
     private PaymentTransactionType transactionType;
 
@@ -29,38 +27,6 @@ public class PaymentTransactionEntryDTO {
     private PaymentTransactionDTO paymentTransactionDto;
 
     public PaymentTransactionEntryDTO() {
-    }
-
-    public PaymentTransactionEntryDTO(final Long id,
-                                      final PaymentTransactionType transactionType,
-                                      final boolean status,
-                                      final String resultMessage,
-                                      final String successRedirectURL,
-                                      final String failedRedirectURL,
-                                      final Double amount,
-                                      final String currency,
-                                      final ZonedDateTime createDate,
-                                      final Long paymentTransactionId,
-                                      final PaymentTransactionDTO paymentTransactionDto) {
-        this.id = id;
-        this.transactionType = transactionType;
-        this.status = status;
-        this.resultMessage = resultMessage;
-        this.successRedirectURL = successRedirectURL;
-        this.failedRedirectURL = failedRedirectURL;
-        this.amount = amount;
-        this.currency = currency;
-        this.createDate = createDate;
-        this.paymentTransactionId = paymentTransactionId;
-        this.paymentTransactionDto = paymentTransactionDto;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     public PaymentTransactionType getTransactionType() {

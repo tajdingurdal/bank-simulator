@@ -1,8 +1,6 @@
 package com.solid.soft.solid_soft_bank.model.dto;
 
-public class CardDTO {
-
-    private Long id;
+public class CardDTO extends BaseDTO{
 
     private String name;
 
@@ -20,32 +18,6 @@ public class CardDTO {
 
 
     public CardDTO() {
-    }
-
-    public CardDTO(final Long id,
-                   final String name,
-                   final String surname,
-                   final String cardNo,
-                   final String expiredDate,
-                   final String cvc,
-                   final Double amount,
-                   final String currency) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.cardNo = cardNo;
-        this.expiredDate = expiredDate;
-        this.cvc = cvc;
-        this.amount = amount;
-        this.currency = currency;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -107,7 +79,6 @@ public class CardDTO {
     @Override
     public String toString() {
         return "CardDTO{" +
-                "id=" + id +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", cardNo='" + cardNo + '\'' +

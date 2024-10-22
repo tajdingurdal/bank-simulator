@@ -42,9 +42,9 @@ public class ResponseMessages {
         return String.format("Merchant does not found by this %s API Key. You should register as Merchant first.", apiKey);
     }
 
-    public static String bankAndMerchantAndApikeyAreNotValidCombinationError(final String merchantTransactionCode, final String bankTransactionCode) {
-        return String.format("Merchant Transaction Code %s And Bank Transaction Code %s And API Key should be a valid combination.", merchantTransactionCode,
-                bankTransactionCode);
+    public static String bankAndMerchantAndApikeyAreNotValidCombinationError(final String merchantTransactionCode, final String bankTransactionCode, final String apikey) {
+        return String.format("Merchant Transaction Code %s And Bank Transaction Code %s And API Key %s should be a valid combination.", merchantTransactionCode,
+                bankTransactionCode, apikey);
     }
 
     public static String subscribeRequired(final String merchantTransactionCode) {
@@ -58,4 +58,13 @@ public class ResponseMessages {
     public static String transactionNotFound(String bankTransactionCode) {
         return String.format("Transaction with bankTransactionCode %s not found.", bankTransactionCode);
     }
+
+    public static String doesNotMatchAmountMessage(double amount) {
+        return String.format("Transaction amount %f does not match the expected amount.", amount);
+    }
+
+    public static String doesNotMatchCurrencyMessage(String currency) {
+        return String.format("Transaction currency '%s' does not match the expected currency.", currency);
+    }
+
 }

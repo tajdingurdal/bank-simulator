@@ -1,20 +1,12 @@
 package com.solid.soft.solid_soft_bank.model.dto;
 
-public class MerchantDTO {
+public class MerchantDTO extends BaseDTO{
 
-    private Long   id;
     private String name;
     private String webSite;
     private String apiKey;
 
     public MerchantDTO() {
-    }
-
-    public MerchantDTO(Long id, final String name, final String webSite, final String apiKey) {
-        this.id = id;
-        this.name = name;
-        this.webSite = webSite;
-        this.apiKey = apiKey;
     }
 
     public String getName() {
@@ -39,13 +31,5 @@ public class MerchantDTO {
 
     public void setApiKey(final String apiKey) {
         this.apiKey = apiKey;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 }

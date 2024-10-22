@@ -28,12 +28,14 @@
             <column name="cvc" type="varchar(10)">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="double">
+            <column name="balance" type="double" defaultValueNumeric="0">
                 <constraints nullable="false"/>
             </column>
             <column name="currency" type="varchar(10)">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
         </createTable>
     </changeSet>
 

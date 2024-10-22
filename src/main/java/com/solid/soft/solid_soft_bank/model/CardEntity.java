@@ -26,8 +26,8 @@ public class CardEntity extends BaseEntity {
     @Column(name = "cvc")
     private String cvc;
 
-    @Column(name = "amount")
-    private Double amount;
+    @Column(name = "balance")
+    private Double balance;
 
     @Column(name = "currency")
     private String currency;
@@ -36,13 +36,13 @@ public class CardEntity extends BaseEntity {
     }
 
     public CardEntity(final String name, final String surname, final String cardNo, final String expiredDate, final String cvc,
-                      final Double amount, final String currency) {
+                      final Double balance, final String currency) {
         this.name = name;
         this.surname = surname;
         this.cardNo = cardNo;
         this.expiredDate = expiredDate;
         this.cvc = cvc;
-        this.amount = amount;
+        this.balance = balance;
         this.currency = currency;
     }
 
@@ -86,12 +86,12 @@ public class CardEntity extends BaseEntity {
         this.cvc = cvc;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getBalance() {
+        return balance;
     }
 
-    public void setAmount(final Double amount) {
-        this.amount = amount;
+    public void setBalance(final Double amount) {
+        this.balance = amount;
     }
 
     public String getCurrency() {

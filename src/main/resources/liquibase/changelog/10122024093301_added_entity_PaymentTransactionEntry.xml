@@ -34,12 +34,11 @@
             <column name="currency" type="varchar(6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="create_date" type="timestamp">
-                <constraints nullable="false"/>
-            </column>
             <column name="payment_transaction_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
         </createTable>
     </changeSet>
 

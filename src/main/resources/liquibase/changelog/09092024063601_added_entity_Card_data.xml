@@ -18,9 +18,9 @@
             <column name="name" type="string"/>
             <column name="surname" type="string"/>
             <column name="card_no" type="string"/>
-            <column name="expire_date" type="string"/>
+            <column name="expire_date" type="date"/>
             <column name="cvc" type="string"/>
-            <column name="amount" type="numeric"/>
+            <column name="balance" type="numeric"/>
             <column name="currency" type="string"/>
         </loadData>
 

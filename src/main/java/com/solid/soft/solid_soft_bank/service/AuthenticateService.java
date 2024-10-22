@@ -41,94 +41,25 @@ public class AuthenticateService {
         return paymentTransactionService.findByIdAndType(id, PaymentTransactionType.AUTHENTICATE);
     }
 
-    public AuthenticateResponseDTO authenticatePrePayment(final AuthenticateRequestDTO authenticateDto) throws InstanceAlreadyExistsException {
+    public AuthenticateResponseDTO authenticatePrePayment(final AuthenticateRequestDTO dto) throws InstanceAlreadyExistsException {
 
-        log.debug("Starting pre-payment authentication process: Merchant Transaction Code: {}, Bank Transaction Code: {}, API Key: {}",
-                authenticateDto.getMerchantTransactionCode(), authenticateDto.getBankTransactionCode(), authenticateDto.getApiKey());
-
-        final String merchantTransactionCode = authenticateDto.getMerchantTransactionCode();
-        final String bankTransactionCode = authenticateDto.getBankTransactionCode();
-
-        final PaymentTransactionDTO paymentTransactionDto = paymentTransactionService.findByBankTransactionCode(bankTransactionCode);
-        final MerchantDTO merchantDTO = paymentTransactionDto.getMerchantEntity();
-        final PaymentTransactionEntryDTO subscribeEntry = subscribeService.findSubscribeEntryByPaymentTransactionId(paymentTransactionDto.getId());
+        final String bankTransactionCode = dto.getBankTransactionCode();
+        final CardDTO card = dto.getCard();
 
         final AuthenticateResponseDTO response = new AuthenticateResponseDTO();
+        final PaymentTransactionDTO paymentTransactionDtoFromDB = paymentTransactionService.findByBankTransactionCode(bankTransactionCode);
 
-        if (!paymentTransactionDto.getMerchantTransactionCode().equals(authenticateDto.getMerchantTransactionCode()) &&
-                !paymentTransactionDto.getBankTransactionCode().equals(authenticateDto.getBankTransactionCode()) &&
-                !paymentTransactionDto.getMerchantEntity().getApiKey().equals(authenticateDto.getApiKey())) {
+        AuthenticateResponseDTO comparedData = compareDTODataAndDBDataToValidate(dto, paymentTransactionDtoFromDB, bankTransactionCode, response);
+        if (comparedData != null) {return comparedData;}
 
-            log.warn("Invalid combination of Merchant Transaction Code, Bank Transaction Code, and API Key: {}, {}, {}",
-                    merchantTransactionCode, bankTransactionCode, authenticateDto.getApiKey());
-
-            response.setMessage(ResponseMessages.bankAndMerchantAndApikeyAreNotValidCombinationError(merchantTransactionCode, bankTransactionCode));
-            response.setStatus(false);
-            return response;
-        }
-
-        if (subscribeEntry == null) {
-            log.warn("Subscription entry is required but not found for Merchant Transaction Code: {}", merchantTransactionCode);
-            response.setMessage(ResponseMessages.subscribeRequired(merchantTransactionCode));
-            response.setStatus(false);
-            return response;
-        }
-
-        if (merchantDTO == null) {
-            log.warn("Merchant does not exist for Bank Transaction Code: {}", bankTransactionCode);
-            response.setMessage(ResponseMessages.merchantDoesntExist(bankTransactionCode));
-            response.setStatus(false);
-            return response;
-        }
-
-        if (!merchantDTO.getApiKey().equals(authenticateDto.getApiKey())) {
-            log.warn("API Key does not match for Merchant: {}", merchantDTO.getId());
-            response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
-            response.setStatus(false);
-            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
-            return response;
-        }
-
-        if (!paymentTransactionDto.getMerchantTransactionCode().equals(merchantTransactionCode)) {
-            log.warn("Merchant Transaction Code does not match: {}", merchantTransactionCode);
-            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
-            response.setStatus(false);
-            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
-            return response;
-        }
-
-        if (!paymentTransactionDto.getBankTransactionCode().equals(bankTransactionCode)) {
-            log.warn("Bank Transaction Code does not match: {}", bankTransactionCode);
-            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
-            response.setStatus(false);
-            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
-            return response;
-        }
-
-        if (!subscribeEntry.getAmount().equals(authenticateDto.getAmount())) {
-            log.warn("Transaction amount does not match: {}", authenticateDto.getAmount());
-            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
-            response.setStatus(false);
-            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
-            return response;
-        }
-
-        if (!subscribeEntry.getCurrency().equals(authenticateDto.getCurrency())) {
-            log.warn("Transaction currency does not match: {}", authenticateDto.getCurrency());
-            response.setMessage(ResponseMessages.AUTHENTICATE_FAILED);
-            response.setStatus(false);
-            log.warn(ResponseMessages.AUTHENTICATE_FAILED);
-            return response;
-        }
-
-        final PaymentTransactionEntryEntity authenticateEntry = createAuthenticateEntry(authenticateDto, paymentTransactionDto);
+        final PaymentTransactionEntryEntity authenticateEntry = createAuthenticateEntry(dto, paymentTransactionDtoFromDB);
         final PaymentTransactionEntryEntity paymentTransactionEntryEntity = paymentTransactionService.saveEntry(authenticateEntry);
 
         response.setId(paymentTransactionEntryEntity.getId());
         response.setStatus(true);
         response.setMessage(ResponseMessages.AUTHENTICATE_SUCCESS);
         response.setBankTransactionCode(bankTransactionCode);
-        response.setPaymentUrl(String.format(PAYMENT_URL + "?bankTransactionCode=%s", bankTransactionCode, bankTransactionCode));
+        response.setPaymentUrl(String.format(PAYMENT_URL + "?bankTransactionCode=%s", bankTransactionCode));
 
         log.debug("Pre-payment authentication process completed: Bank Transaction Code: {}, Payment URL: {}", bankTransactionCode, response.getPaymentUrl());
 
@@ -147,27 +78,27 @@ public class AuthenticateService {
             return ResponseMessages.transactionNotFound(bankTransactionCode);
         }
 
-        String validateCardDetailsMessage = validateCardDetails(dto);
+        String validateCardDetailsMessage = checkMissingCardDetails(dto);
         if (validateCardDetailsMessage != null) {
             log.warn("Card details validation failed: {}", validateCardDetailsMessage);
             return validateCardDetailsMessage;
         }
 
-        final CardDTO cardDTO = cardService.findByCardNo(dto.getCardNo());
+        final CardDTO cardDTOFromDB = cardService.findByCardNo(dto.getCardNo());
 
-        String validationCardAgainstDBMessage = validateCardAgainstDatabase(cardDTO, dto);
+        String validationCardAgainstDBMessage = validateCardAgainstDatabase(cardDTOFromDB, dto);
         if (validationCardAgainstDBMessage != null) {
             log.warn("Card validation against database failed: {}", validationCardAgainstDBMessage);
             return validationCardAgainstDBMessage;
         }
 
-        String validationMessage = validateCardExpirationDate(cardDTO);
+        String validationMessage = validateCardExpirationDate(cardDTOFromDB);
         if (validationMessage != null) {
             log.warn("Card expiration date validation failed: {}", validationMessage);
             return validationMessage;
         }
 
-        if (cardDTO.getAmount() <= 0) {
+        if (cardDTOFromDB.getAmount() <= 0) {
             log.warn("Insufficient balance for Card Number: {}", dto.getCardNo());
             return "Insufficient balance.";
         }
@@ -188,11 +119,55 @@ public class AuthenticateService {
         authenticateEntry.setTransactionType(PaymentTransactionType.AUTHENTICATE);
         authenticateEntry.setStatus(true);
         authenticateEntry.setPaymentTransactionId(paymentTransactionDTO.getId());
-        authenticateEntry.setCreateDate(ZonedDateTime.now());
         return authenticateEntry;
     }
 
-    private String validateCardDetails(CardDTO dto) {
+    private AuthenticateResponseDTO compareDTODataAndDBDataToValidate(final AuthenticateRequestDTO dto,
+                                                                      final PaymentTransactionDTO paymentTransactionDtoFromDB,
+                                                                      final String bankTransactionCode,
+                                                                      final AuthenticateResponseDTO response) {
+
+        final String merchantTransactionCode = dto.getMerchantTransactionCode();
+        final String apiKey = dto.getApiKey();
+
+        if (paymentTransactionDtoFromDB == null) {
+            return setErrorResponse(response, ResponseMessages.transactionNotFound(bankTransactionCode));
+        }
+
+        final MerchantDTO merchantDTOFromDB = paymentTransactionDtoFromDB.getMerchantEntity();
+        final String merchantTransactionCodeFromDB = paymentTransactionDtoFromDB.getMerchantTransactionCode();
+        final String bankTransactionCodeFromDB = paymentTransactionDtoFromDB.getBankTransactionCode();
+
+        final PaymentTransactionEntryDTO subscribeEntry = subscribeService.findSubscribeEntryByPaymentTransactionId(paymentTransactionDtoFromDB.getId());
+
+        if (subscribeEntry == null) {
+            return setErrorResponse(response, ResponseMessages.subscribeRequired(merchantTransactionCode));
+        }
+
+        if (merchantDTOFromDB == null) {
+            return setErrorResponse(response, ResponseMessages.merchantDoesntExist(bankTransactionCode));
+        }
+
+        if (!merchantTransactionCodeFromDB.equals(merchantTransactionCode)
+                || !bankTransactionCodeFromDB.equals(bankTransactionCode)
+                || !merchantDTOFromDB.getApiKey().equals(apiKey)) {
+
+            return setErrorResponse(response,
+                    ResponseMessages.bankAndMerchantAndApikeyAreNotValidCombinationError(merchantTransactionCode, bankTransactionCode, apiKey));
+        }
+
+        if (!subscribeEntry.getAmount().equals(dto.getAmount())) {
+            return setErrorResponse(response, ResponseMessages.doesNotMatchAmountMessage(dto.getAmount()));
+        }
+
+        if (!subscribeEntry.getCurrency().equals(dto.getCurrency())) {
+            return setErrorResponse(response, ResponseMessages.doesNotMatchCurrencyMessage(dto.getCurrency()));
+        }
+
+        return null;
+    }
+
+    private String checkMissingCardDetails(CardDTO dto) {
         if (dto == null) {
             return "CardDTO is null.";
         }
@@ -224,7 +199,7 @@ public class AuthenticateService {
     private String validateCardAgainstDatabase(final CardDTO cardDB, final CardDTO request) {
 
         if (cardDB == null) {
-            return String.format("Card with card number %s not found.", cardDB.getCardNo());
+            return "Card is empty.";
         }
         if (!cardDB.getCvc().equals(request.getCvc())) {
             return "CVC code does not match.";
@@ -246,7 +221,7 @@ public class AuthenticateService {
 
     private String validateCardExpirationDate(CardDTO cardDTO) {
         final String[] expiredDateArr = cardDTO.getExpiredDate().split("/");
-        final Integer monthOfExpiredDate = Integer.valueOf(expiredDateArr[0]);
+        final int monthOfExpiredDate = Integer.parseInt(expiredDateArr[0]);
         final Integer yearOfExpiredDate = Integer.valueOf(String.format("20%s", expiredDateArr[1]));
 
         if (yearOfExpiredDate < ZonedDateTime.now().getYear() ||
@@ -256,4 +231,10 @@ public class AuthenticateService {
         return null;
     }
 
+    private AuthenticateResponseDTO setErrorResponse(AuthenticateResponseDTO response, String message) {
+        response.setMessage(message);
+        response.setStatus(false);
+        log.warn(message);
+        return response;
+    }
 }

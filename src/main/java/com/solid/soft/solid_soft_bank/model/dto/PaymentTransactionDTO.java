@@ -1,8 +1,6 @@
 package com.solid.soft.solid_soft_bank.model.dto;
 
-public class PaymentTransactionDTO {
-
-    private Long id;
+public class PaymentTransactionDTO extends BaseDTO{
 
     private String bankTransactionCode;
 
@@ -13,26 +11,6 @@ public class PaymentTransactionDTO {
     private MerchantDTO merchantEntity;
 
     public PaymentTransactionDTO() {
-    }
-
-    public PaymentTransactionDTO(final Long id,
-                                 final String bankTransactionCode,
-                                 final String merchantTransactionCode,
-                                 final Long merchandId,
-                                 final MerchantDTO merchantEntity) {
-        this.id = id;
-        this.bankTransactionCode = bankTransactionCode;
-        this.merchantTransactionCode = merchantTransactionCode;
-        this.merchandId = merchandId;
-        this.merchantEntity = merchantEntity;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     public String getBankTransactionCode() {

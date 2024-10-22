@@ -1,5 +1,5 @@
-id;name;surname;card_no;expire_date;cvc;amount;currency
-1;Donald;Trump;1234567890;01/26;123;400.0;USD
-2;Joe;Biden;0987654321;02/25;456;250.0;EUR
-3;Barack;Obama;1122334455;03/27;789;150.5;GBP
-4;Angela;Merkel;2233445566;04/28;321;300.75;JPY
+id;name;surname;card_no;expire_date;cvc;balance;currency;created_date;last_modified_date
+1;Donald;Trump;5105105105105100;01/26;123;400.0;USD;2024-10-22 10:50:00;2024-10-22 10:53:00
+2;Joe;Biden;4012888888881881;02/25;456;250.0;EUR;2024-10-22 10:51:00;2024-10-22 10:53:00
+3;Barack;Obama;5555555555554444;03/27;789;150.5;GBP;2024-10-22 10:52:00;2024-10-22 10:53:00
+4;Angela;Merkel;4111111111111111;04/28;321;300.75;JPY;2024-10-22 10:53:00;2024-10-22 10:53:00

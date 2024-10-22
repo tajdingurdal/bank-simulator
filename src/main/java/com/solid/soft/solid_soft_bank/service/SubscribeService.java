@@ -12,8 +12,8 @@ import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.management.InstanceAlreadyExistsException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +28,7 @@ public class SubscribeService {
     private final MerchantService merchantService;
     private final PaymentTransactionEntryRepository entryRepository;
 
-    private final List<String> currencies = List.of("USD", "TRY", "EURO");
+    private final List<String> currencies = List.of("USD", "TRY", "EURO", "GBP", "JPY");
 
 
     public SubscribeService(final MerchantService merchantService,
@@ -51,69 +51,43 @@ public class SubscribeService {
 
     public SubscribeResponseDTO subscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) throws IllegalStateException {
 
-        log.debug("Starting subscription process: Merchant Transaction Code: {}, API Key: {}, Amount: {}, Currency: {}",
-                merchantTransactionCode, apiKey, amount, currency);
+        log.debug("Starting subscription process: Merchant Transaction Code: {}, API Key: {}, Amount: {}, Currency: {}", merchantTransactionCode, apiKey, amount, currency);
 
-        final SubscribeResponseDTO response = new SubscribeResponseDTO();
         final String validationResult = validateSubscribe(merchantTransactionCode, apiKey, amount, currency);
 
         if (validationResult != null) {
-            log.warn("Subscription validation failed: {}", validationResult);
-
-            final PaymentTransactionEntryEntity subscribeEntry = new PaymentTransactionEntryEntity();
-            final PaymentTransactionEntity paymentTransactionEntity = new PaymentTransactionEntity();
-
-            paymentTransactionEntity.setMerchantTransactionCode(merchantTransactionCode);
-            paymentTransactionEntity.setBankTransactionCode(null);
-            paymentTransactionEntity.setMerchandId(merchantService.findByApikey(apiKey).getId());
-            final PaymentTransactionEntity savedPaymentTransactionEntity = paymentTransactionService.savePaymentTransaction(paymentTransactionEntity);
-
-            subscribeEntry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
-            subscribeEntry.setStatus(false);
-            subscribeEntry.setResultMessage(validationResult);
-            subscribeEntry.setSuccessRedirectURL(null);
-            subscribeEntry.setFailedRedirectURL(null);
-            subscribeEntry.setAmount(amount);
-            subscribeEntry.setCurrency(currency);
-            subscribeEntry.setCreateDate(ZonedDateTime.now());
-            subscribeEntry.setPaymentTransactionId(savedPaymentTransactionEntity.getId());
-            final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(subscribeEntry);
-
-            response.setId(savedPaymentTransactionEntryEntity.getId());
-            response.setMessage(validationResult);
-            response.setSubscribe(false);
-            response.setBankTransactionCode(null);
-
-            log.debug("Returning subscription response due to validation failure: {}", response);
-            return response;
+            return generateFailedSubscriptionTransaction(merchantTransactionCode, apiKey, amount, currency, validationResult);
         }
 
+        return generateSuccessSubscriptionTransaction(merchantTransactionCode, apiKey, amount, currency);
+    }
+
+    private SubscribeResponseDTO generateSuccessSubscriptionTransaction(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
         final String bankTransactionCode = createBankTransactionCode(merchantTransactionCode);
         final boolean subscribe = true;
 
         final MerchantDTO merchantDTO = merchantService.findByApikey(apiKey);
 
         // Save Payment Transaction Entity
-        final PaymentTransactionEntity paymentTransactionEntity = new PaymentTransactionEntity();
-        paymentTransactionEntity.setMerchantTransactionCode(merchantTransactionCode);
-        paymentTransactionEntity.setMerchandId(merchantDTO.getId());
-        paymentTransactionEntity.setBankTransactionCode(bankTransactionCode);
-
-        final PaymentTransactionEntity savedPaymentTransactionEntity = paymentTransactionRepository.save(paymentTransactionEntity);
+        final PaymentTransactionEntity transaction = new PaymentTransactionEntity();
+        transaction.setMerchantTransactionCode(merchantTransactionCode);
+        transaction.setMerchandId(merchantDTO.getId());
+        transaction.setBankTransactionCode(bankTransactionCode);
+        final PaymentTransactionEntity savedTransaction = paymentTransactionRepository.save(transaction);
 
         // Save Subscribe
-        final PaymentTransactionEntryEntity subscribeEntity = new PaymentTransactionEntryEntity();
-        subscribeEntity.setStatus(subscribe);
-        subscribeEntity.setAmount(amount);
-        subscribeEntity.setCurrency(currency);
-        subscribeEntity.setPaymentTransactionId(savedPaymentTransactionEntity.getId());
-        subscribeEntity.setResultMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
-        subscribeEntity.setCreateDate(ZonedDateTime.now());
-        subscribeEntity.setTransactionType(PaymentTransactionType.SUBSCRIBE);
+        final PaymentTransactionEntryEntity entry = new PaymentTransactionEntryEntity();
+        entry.setStatus(subscribe);
+        entry.setAmount(amount);
+        entry.setCurrency(currency);
+        entry.setPaymentTransactionId(savedTransaction.getId());
+        entry.setResultMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
+        entry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
 
-        final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(subscribeEntity);
+        final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(entry);
 
         // Return
+        final SubscribeResponseDTO response = new SubscribeResponseDTO();
         response.setId(savedPaymentTransactionEntryEntity.getId());
         response.setSubscribe(subscribe);
         response.setMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
@@ -124,51 +98,76 @@ public class SubscribeService {
         return response;
     }
 
+    private SubscribeResponseDTO generateFailedSubscriptionTransaction(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency, final String validationResult) {
+        log.warn("Subscription validation failed: {}", validationResult);
+
+        // Save Payment Transaction Entity
+        final PaymentTransactionEntity transaction = new PaymentTransactionEntity();
+        transaction.setMerchantTransactionCode(merchantTransactionCode);
+        transaction.setBankTransactionCode(null);
+        transaction.setMerchandId(merchantService.findByApikey(apiKey).getId());
+        final PaymentTransactionEntity savedTransaction = paymentTransactionService.savePaymentTransaction(transaction);
+
+        // Save Subscribe Entry
+        final PaymentTransactionEntryEntity entry = new PaymentTransactionEntryEntity();
+        entry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
+        entry.setStatus(false);
+        entry.setResultMessage(validationResult);
+        entry.setSuccessRedirectURL(null);
+        entry.setFailedRedirectURL(null);
+        entry.setAmount(amount);
+        entry.setCurrency(currency);
+        entry.setPaymentTransactionId(savedTransaction.getId());
+        final PaymentTransactionEntryEntity savedEntry = entryRepository.save(entry);
+
+        // Return
+        final SubscribeResponseDTO response = new SubscribeResponseDTO();
+        response.setId(savedEntry.getId());
+        response.setMessage(validationResult);
+        response.setSubscribe(false);
+        response.setBankTransactionCode(null);
+
+        log.debug("Returning subscription response due to validation failure: {}", response);
+        return response;
+    }
+
     private String validateSubscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
 
 
-        if (merchantTransactionCode == null || apiKey == null || amount == null || currency == null) {
-            final String message = ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency);
-            log.warn("Validation failed: {}", message);
-            return message;
+        if (StringUtils.isEmpty(merchantTransactionCode) || StringUtils.isEmpty(apiKey) || StringUtils.isEmpty(amount) || StringUtils.isEmpty(currency) ) {
+            return setErrorResponse(ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency));
         }
 
         final MerchantDTO merchantDto = merchantService.findByApikey(apiKey);
         if (merchantDto == null) {
-            String message = ResponseMessages.merchantNotFoundByApiKey(apiKey);
-            log.warn("Validation failed: {}", message);
-            return message;
+            return setErrorResponse(ResponseMessages.merchantNotFoundByApiKey(apiKey));
         }
 
         if (!merchantDto.getApiKey().equals(apiKey)) {
-            String message = ResponseMessages.invalidApiKeyMessage(apiKey);
-            log.warn("Validation failed: {}", message);
-            return message;
+            return setErrorResponse(ResponseMessages.invalidApiKeyMessage(apiKey));
         }
 
         if (findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode) != null) {
-            String message = ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode);
-            log.warn("Validation failed: {}", message);
-            return message;
+            return setErrorResponse(ResponseMessages.transactionCodeAlreadySubscribedMessage(merchantTransactionCode));
         }
 
         if (amount < 0 || amount > 1000000) {
-            String message = ResponseMessages.invalidAmountMessage(amount);
-            log.warn("Validation failed: {}", message);
+            return setErrorResponse(ResponseMessages.invalidAmountMessage(amount));
         }
 
         if (!currencies.contains(currency)) {
-            String message = ResponseMessages.invalidCurrencyMessage(currency);
-            log.warn("Validation failed: {}", message);
-            return message;
+            return setErrorResponse(ResponseMessages.invalidCurrencyMessage(currency));
         }
 
         return null;
     }
 
     private String createBankTransactionCode(final String merchantTransactionCode) {
-        return String.format(
-                merchantTransactionCode.toLowerCase() + UUID.randomUUID().toString().toLowerCase() + ZonedDateTime.now().toInstant().toEpochMilli());
+        return String.format(merchantTransactionCode.toLowerCase() + UUID.randomUUID().toString().toLowerCase() + ZonedDateTime.now().toInstant().toEpochMilli());
     }
 
+    private String setErrorResponse(String message) {
+        log.warn("Subscribe | Validation failed: {}", message);
+        return message;
+    }
 }

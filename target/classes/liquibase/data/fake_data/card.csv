@@ -1,5 +1,0 @@
-id;name;surname;card_no;expire_date;cvc;amount;currency
-1;Donald;Trump;1234567890;01/26;123;400.0;USD
-2;Joe;Biden;0987654321;02/25;456;250.0;EUR
-3;Barack;Obama;1122334455;03/27;789;150.5;GBP
-4;Angela;Merkel;2233445566;04/28;321;300.75;JPY

@@ -9,6 +9,7 @@ public class AuthenticateRequestDTO {
     private String currency;
     private String successRedirectURL;
     private String failureRedirectURL;
+    private CardDTO card;
 
     public String getMerchantTransactionCode() {
         return merchantTransactionCode;
@@ -64,5 +65,13 @@ public class AuthenticateRequestDTO {
 
     public void setCurrency(final String currency) {
         this.currency = currency;
+    }
+
+    public CardDTO getCard() {
+        return card;
+    }
+
+    public void setCard(final CardDTO card) {
+        this.card = card;
     }
 }
