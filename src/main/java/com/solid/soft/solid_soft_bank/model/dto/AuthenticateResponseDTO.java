@@ -7,19 +7,19 @@ public class AuthenticateResponseDTO extends BaseDTO{
     private String  bankTransactionCode;
     private boolean status;
     private String  message;
-    private String  paymentUrl;
+    private String url;
 
     public AuthenticateResponseDTO() {
         super();
     }
 
     public AuthenticateResponseDTO(Long id, final String bankTransactionCode, final boolean status, final String message,
-                                   final String paymentUrl) {
+                                   final String url) {
         super(id, Instant.now(), Instant.now());
         this.bankTransactionCode = bankTransactionCode;
         this.status = status;
         this.message = message;
-        this.paymentUrl = paymentUrl;
+        this.url = url;
     }
 
     public String getBankTransactionCode() {
@@ -46,11 +46,11 @@ public class AuthenticateResponseDTO extends BaseDTO{
         this.message = message;
     }
 
-    public String getPaymentUrl() {
-        return paymentUrl;
+    public String getUrl() {
+        return url;
     }
 
-    public void setPaymentUrl(final String paymentUrl) {
-        this.paymentUrl = paymentUrl;
+    public void setUrl(final String url) {
+        this.url = url;
     }
 }

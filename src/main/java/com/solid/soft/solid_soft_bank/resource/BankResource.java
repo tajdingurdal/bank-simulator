@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -66,17 +65,18 @@ public class BankResource {
 
     @PostMapping("/authenticate/otp")
     @ResponseBody
-    public String authenticateAndRedirectOtpPage(@RequestBody AuthenticateRequestDTO requestDTO) throws InstanceAlreadyExistsException {
+    public AuthenticateResponseDTO authenticateAndRedirectOtpPage(@RequestBody AuthenticateRequestDTO requestDTO) throws InstanceAlreadyExistsException {
         final AuthenticateResponseDTO authenticateResponseDTO = authenticateService.authenticatePrePayment(requestDTO);
         if (!authenticateResponseDTO.isStatus()) {
-            return authenticateResponseDTO.getMessage();
+            return authenticateResponseDTO;
         }
 
         final CardDTO card = cardService.findByCardNo(requestDTO.getCard().getCardNo());
         if (!card.getOtpRequired()){
-            return "Card not supported OTP";
+            return authenticateService.createAuthenticateResponse(authenticateResponseDTO.getId(), false, "Card not supported OTP", authenticateResponseDTO.getBankTransactionCode(), null);
         }
-        return otpUrl + authenticateResponseDTO.getBankTransactionCode();
+        authenticateResponseDTO.setUrl(this.otpUrl + authenticateResponseDTO.getBankTransactionCode());
+        return authenticateResponseDTO;
     }
 
     @GetMapping("/checkout")

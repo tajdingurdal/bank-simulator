@@ -146,7 +146,7 @@ public class AuthenticateService extends BaseEntryService{
     }
 
 
-    private AuthenticateResponseDTO createAuthenticateResponse(final Long entryId,
+    public AuthenticateResponseDTO createAuthenticateResponse(final Long entryId,
                                                                final boolean status,
                                                                final String message,
                                                                final String bankTransactionCode,
