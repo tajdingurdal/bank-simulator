@@ -21,7 +21,7 @@ import java.util.Objects;
 public class AuthenticateService extends BaseEntryService{
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticateService.class);
-    @Value("${payment.url}")
+    @Value("${application.payment.url}")
     private String paymentUrl;
     private final SubscribeService subscribeService;
     private final CardService cardService;

@@ -30,11 +30,12 @@ public class BankResource {
 
     private static final Logger log = LoggerFactory.getLogger(BankResource.class);
 
-    @Value("${sample.card.sample-card-no}")
+    @Value("${application.sample.card.sample-card-no}")
     private String sampleCardNo;
-
-    @Value("${temporary.otp}")
+    @Value("${application.temporary.otp}")
     public String temporaryOtp;
+    @Value("${application.payment.otp-url}")
+    public String otpUrl;
 
     private final AuthenticateService authenticateService;
     private final SubscribeService subscribeService;
@@ -63,6 +64,20 @@ public class BankResource {
         return authenticateService.authenticatePrePayment(authenticateRequestDTO);
     }
 
+    @PostMapping("/authenticate/otp")
+    @ResponseBody
+    public String authenticateAndRedirectOtpPage(@RequestBody AuthenticateRequestDTO requestDTO) throws InstanceAlreadyExistsException {
+        final AuthenticateResponseDTO authenticateResponseDTO = authenticateService.authenticatePrePayment(requestDTO);
+        if (!authenticateResponseDTO.isStatus()) {
+            return authenticateResponseDTO.getMessage();
+        }
+
+        final CardDTO card = cardService.findByCardNo(requestDTO.getCard().getCardNo());
+        if (!card.getOtpRequired()){
+            return "Card not supported OTP";
+        }
+        return otpUrl + authenticateResponseDTO.getBankTransactionCode();
+    }
 
     @GetMapping("/checkout")
     public String showPaymentForm(@RequestParam String bankTransactionCode, Model model) {

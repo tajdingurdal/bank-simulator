@@ -28,7 +28,7 @@ public class SubscribeService extends BaseEntryService{
     private final MerchantService merchantService;
     private final PaymentTransactionEntryRepository entryRepository;
 
-    private final List<String> currencies = List.of("USD", "TRY", "EURO", "GBP", "JPY");
+    private final List<String> currencies = List.of("USD", "TRY", "EUR", "GBP", "JPY");
 
 
     public SubscribeService(final MerchantService merchantService,

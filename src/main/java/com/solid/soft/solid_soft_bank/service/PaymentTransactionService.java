@@ -40,7 +40,7 @@ public class PaymentTransactionService {
         }
 
         if (findSubscribeEntryByPaymentTransactionIdAndType(entity.getPaymentTransactionId(), PaymentTransactionType.AUTHENTICATE) != null) {
-            throw new InstanceAlreadyExistsException("PaymentTransactionEntryEntity already exists.");
+            throw new InstanceAlreadyExistsException("PaymentTransactionEntryEntity already exists. You should send entry request again.");
         }
 
         return entryRepository.save(entity);

@@ -8,6 +8,15 @@ public class BaseDTO {
     private Instant createdDate;
     private Instant modifiedDate;
 
+    public BaseDTO() {
+    }
+
+    public BaseDTO(final Long id, final Instant createdDate, final Instant modifiedDate) {
+        this.id = id;
+        this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
+    }
+
     public Long getId() {
         return id;
     }

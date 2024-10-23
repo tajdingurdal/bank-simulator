@@ -1,7 +1,5 @@
 package com.solid.soft.solid_soft_bank.resource;
 
-import com.solid.soft.solid_soft_bank.model.dto.AuthenticateRequestDTO;
-import com.solid.soft.solid_soft_bank.model.dto.AuthenticateResponseDTO;
 import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import com.solid.soft.solid_soft_bank.service.AuthenticateService;
@@ -14,19 +12,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.management.InstanceAlreadyExistsException;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/bank/ui")
 public class BankUIResource {
 
     private static final Logger log = LoggerFactory.getLogger(BankUIResource.class);
-    @Value("${temporary.otp}")
+    @Value("${application.temporary.otp}")
     public String temporaryOtp;
 
     private final AuthenticateService authenticateService;
@@ -37,44 +34,28 @@ public class BankUIResource {
         this.cardService = cardService;
     }
 
-    @RequestMapping(value = "/authenticate/otp", method = RequestMethod.POST)
-    public String authenticateAndRedirectOtpPage(@RequestBody AuthenticateRequestDTO requestDTO, Model model) throws InstanceAlreadyExistsException {
-        final AuthenticateResponseDTO authenticateResponseDTO = authenticateService.authenticatePrePayment(requestDTO);
-        if (!authenticateResponseDTO.isStatus()) {
-            return authenticateResponseDTO.getMessage();
-        }
 
-        final CardDTO card = cardService.findByCardNo(requestDTO.getCard().getCardNo());
-        if (!card.getOtpRequired()){
-            return "Card not supported OTP";
-        }
 
-        model.addAttribute("otpCode", temporaryOtp);
-        model.addAttribute("bankTransactionCode", authenticateResponseDTO.getBankTransactionCode());
-        model.addAttribute("cardNo", requestDTO.getCard().getCardNo());
-        return "otp";
-    }
-
-    @RequestMapping(value = "/pay", method = RequestMethod.POST)
+    @RequestMapping(value = "/pay", method = RequestMethod.GET)
     public String pay(@RequestParam String bankTransactionCode, @ModelAttribute("card") CardDTO card, Model model) {
 
         log.debug("CardDTO: {}", card);
         final PaymentTransactionEntryDTO authenticateEntity = authenticateService.findByBankTransactionCode(bankTransactionCode);
 
         try {
-            final String authenticateResult = authenticateService.authenticatePaymentProcess(bankTransactionCode, card);
-
-            if (authenticateResult != null) {
-                return "redirect:" + authenticateEntity.getFailedRedirectURL();
+            if(Objects.nonNull(card.getCardNo())){
+                final String authenticateResult = authenticateService.authenticatePaymentProcess(bankTransactionCode, card);
+                if (authenticateResult != null) {
+                    return "redirect:" + authenticateEntity.getFailedRedirectURL() + "?message=" + authenticateResult.toLowerCase().replace(" ", "-") ;
+                }
             }
-
             model.addAttribute("otpCode", temporaryOtp);
             model.addAttribute("bankTransactionCode", bankTransactionCode);
             model.addAttribute("cardNo", card.getCardNo());
             return "otp";
         } catch (Throwable t) {
             t.printStackTrace();
-            return "redirect:" + authenticateEntity.getFailedRedirectURL();
+            return "redirect:" + authenticateEntity.getFailedRedirectURL() + "?message=" + authenticateEntity.getResultMessage().toLowerCase().replace(" ", "-");
         }
 
     }
@@ -88,7 +69,7 @@ public class BankUIResource {
 
         if (!otpCode.equals(temporaryOtp)) {
             log.debug("OTP Validation failed : {}", otpCode);
-            return "redirect:" + authenticateEntity.getFailedRedirectURL();
+            return "redirect:" + authenticateEntity.getFailedRedirectURL() + "?message=" + "otp-not-correct";
         }
         cardService.updateBalanceAndLastTransactionTime(cardNo, authenticateEntity.getAmount());
         log.debug("OTP Validation success : {}", otpCode);
@@ -97,3 +78,4 @@ public class BankUIResource {
 
 
 }
+// https://www.google.com?message=otp-success

@@ -1,5 +1,7 @@
 package com.solid.soft.solid_soft_bank.model.dto;
 
+import java.time.Instant;
+
 public class AuthenticateResponseDTO extends BaseDTO{
 
     private String  bankTransactionCode;
@@ -8,11 +10,12 @@ public class AuthenticateResponseDTO extends BaseDTO{
     private String  paymentUrl;
 
     public AuthenticateResponseDTO() {
+        super();
     }
 
     public AuthenticateResponseDTO(Long id, final String bankTransactionCode, final boolean status, final String message,
                                    final String paymentUrl) {
-        id = super.getId();
+        super(id, Instant.now(), Instant.now());
         this.bankTransactionCode = bankTransactionCode;
         this.status = status;
         this.message = message;
