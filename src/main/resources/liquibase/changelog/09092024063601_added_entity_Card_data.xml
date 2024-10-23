@@ -22,6 +22,17 @@
             <column name="cvc" type="string"/>
             <column name="balance" type="numeric"/>
             <column name="currency" type="string"/>
+            <column name="card_type" type="string"/>
+            <column name="status" type="string"/>
+            <column name="credit_limit" type="numeric"/>
+            <column name="spending_limit" type="numeric"/>
+            <column name="country" type="string"/>
+            <column name="fraud_risk_score" type="numeric"/>
+            <column name="otp_required" type="boolean"/>
+            <column name="last_transaction_time" type="datetime"/>
+            <column name="subscription_enabled" type="boolean"/>
+            <column name="outstanding_debt" type="numeric"/>
+            <column name="scheduled_payment_enabled" type="boolean"/>
         </loadData>
 
     </changeSet>

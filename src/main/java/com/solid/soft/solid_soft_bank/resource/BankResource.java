@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -31,6 +32,9 @@ public class BankResource {
 
     @Value("${sample.card.sample-card-no}")
     private String sampleCardNo;
+
+    @Value("${temporary.otp}")
+    public String temporaryOtp;
 
     private final AuthenticateService authenticateService;
     private final SubscribeService subscribeService;

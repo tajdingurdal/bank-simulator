@@ -1,8 +1,7 @@
 package com.solid.soft.solid_soft_bank.model.dto;
 
-public class AuthenticateResponseDTO {
+public class AuthenticateResponseDTO extends BaseDTO{
 
-    private Long id;
     private String  bankTransactionCode;
     private boolean status;
     private String  message;
@@ -11,21 +10,13 @@ public class AuthenticateResponseDTO {
     public AuthenticateResponseDTO() {
     }
 
-    public AuthenticateResponseDTO(final Long id, final String bankTransactionCode, final boolean status, final String message,
+    public AuthenticateResponseDTO(Long id, final String bankTransactionCode, final boolean status, final String message,
                                    final String paymentUrl) {
-        this.id = id;
+        id = super.getId();
         this.bankTransactionCode = bankTransactionCode;
         this.status = status;
         this.message = message;
         this.paymentUrl = paymentUrl;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(final Long id) {
-        this.id = id;
     }
 
     public String getBankTransactionCode() {

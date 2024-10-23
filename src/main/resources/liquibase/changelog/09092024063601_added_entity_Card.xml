@@ -34,6 +34,40 @@
             <column name="currency" type="varchar(10)">
                 <constraints nullable="false"/>
             </column>
+            <column name="card_type" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_limit" type="double" defaultValueNumeric="0">
+                <constraints nullable="true"/>
+            </column>
+            <column name="spending_limit" type="double" defaultValueNumeric="0">
+                <constraints nullable="true"/>
+            </column>
+            <column name="country" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fraud_risk_score" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="otp_required" type="boolean">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_transaction_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subscription_enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="outstanding_debt" type="double">
+                <constraints nullable="true"/>
+            </column>
+            <column name="scheduled_payment_enabled" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="created_date" type="timestamp"/>
             <column name="last_modified_date" type="timestamp"/>
         </createTable>

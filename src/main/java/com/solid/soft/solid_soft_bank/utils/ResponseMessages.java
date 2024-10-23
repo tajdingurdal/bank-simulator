@@ -4,6 +4,7 @@ import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 
 public class ResponseMessages {
     public static final String SUBSCRIBE_SUCCESS = "It have been subscribed successfully";
+    public static final String SUBSCRIBE_FAILED = "Subscribe Failed!";
     public static final String AUTHENTICATE_FAILED = "Authentication failed! Please check your credentials and try again.";
     public static final String AUTHENTICATE_SUCCESS = "Authentication successful! You are now logged in.";
 

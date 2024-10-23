@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class SubscribeService {
+public class SubscribeService extends BaseEntryService{
 
     private final PaymentTransactionService paymentTransactionService;
     Logger log = LoggerFactory.getLogger(SubscribeService.class);
@@ -76,14 +76,8 @@ public class SubscribeService {
         final PaymentTransactionEntity savedTransaction = paymentTransactionRepository.save(transaction);
 
         // Save Subscribe
-        final PaymentTransactionEntryEntity entry = new PaymentTransactionEntryEntity();
-        entry.setStatus(subscribe);
-        entry.setAmount(amount);
-        entry.setCurrency(currency);
-        entry.setPaymentTransactionId(savedTransaction.getId());
-        entry.setResultMessage(ResponseMessages.SUBSCRIBE_SUCCESS);
-        entry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
-
+        final PaymentTransactionEntryEntity entry = createEntry(amount, currency, null, null, savedTransaction.getId(), ResponseMessages.SUBSCRIBE_SUCCESS,
+                subscribe, PaymentTransactionType.SUBSCRIBE);
         final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(entry);
 
         // Return
@@ -109,15 +103,8 @@ public class SubscribeService {
         final PaymentTransactionEntity savedTransaction = paymentTransactionService.savePaymentTransaction(transaction);
 
         // Save Subscribe Entry
-        final PaymentTransactionEntryEntity entry = new PaymentTransactionEntryEntity();
-        entry.setTransactionType(PaymentTransactionType.SUBSCRIBE);
-        entry.setStatus(false);
-        entry.setResultMessage(validationResult);
-        entry.setSuccessRedirectURL(null);
-        entry.setFailedRedirectURL(null);
-        entry.setAmount(amount);
-        entry.setCurrency(currency);
-        entry.setPaymentTransactionId(savedTransaction.getId());
+        final PaymentTransactionEntryEntity entry = createEntry(amount, currency, null, null, savedTransaction.getId(), validationResult,
+                false, PaymentTransactionType.SUBSCRIBE);
         final PaymentTransactionEntryEntity savedEntry = entryRepository.save(entry);
 
         // Return
@@ -164,10 +151,5 @@ public class SubscribeService {
 
     private String createBankTransactionCode(final String merchantTransactionCode) {
         return String.format(merchantTransactionCode.toLowerCase() + UUID.randomUUID().toString().toLowerCase() + ZonedDateTime.now().toInstant().toEpochMilli());
-    }
-
-    private String setErrorResponse(String message) {
-        log.warn("Subscribe | Validation failed: {}", message);
-        return message;
     }
 }
