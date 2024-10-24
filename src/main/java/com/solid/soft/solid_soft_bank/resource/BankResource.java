@@ -60,7 +60,9 @@ public class BankResource {
     @ResponseBody
     public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) throws InstanceAlreadyExistsException {
         log.debug("Post request to authenticate...");
-        return authenticateService.authenticatePrePayment(authenticateRequestDTO);
+        final AuthenticateResponseDTO dto = authenticateService.authenticatePrePayment(authenticateRequestDTO);
+        dto.setOtpRequired(false);
+        return dto;
     }
 
     @PostMapping("/authenticate/otp")
@@ -76,6 +78,7 @@ public class BankResource {
             return authenticateService.createAuthenticateResponse(authenticateResponseDTO.getId(), false, "Card not supported OTP", authenticateResponseDTO.getBankTransactionCode(), null);
         }
         authenticateResponseDTO.setUrl(this.otpUrl + authenticateResponseDTO.getBankTransactionCode());
+        authenticateResponseDTO.setOtpRequired(true);
         return authenticateResponseDTO;
     }
 

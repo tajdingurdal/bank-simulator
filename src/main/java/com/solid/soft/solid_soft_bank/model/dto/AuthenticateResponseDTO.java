@@ -8,6 +8,7 @@ public class AuthenticateResponseDTO extends BaseDTO{
     private boolean status;
     private String  message;
     private String url;
+    private boolean otpRequired;
 
     public AuthenticateResponseDTO() {
         super();
@@ -52,5 +53,13 @@ public class AuthenticateResponseDTO extends BaseDTO{
 
     public void setUrl(final String url) {
         this.url = url;
+    }
+
+    public boolean isOtpRequired() {
+        return otpRequired;
+    }
+
+    public void setOtpRequired(final boolean otpRequired) {
+        this.otpRequired = otpRequired;
     }
 }
