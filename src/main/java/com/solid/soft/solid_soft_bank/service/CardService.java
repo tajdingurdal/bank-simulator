@@ -5,11 +5,13 @@ import com.solid.soft.solid_soft_bank.model.CardEntity;
 import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
 import com.solid.soft.solid_soft_bank.model.enums.CardStatusType;
 import com.solid.soft.solid_soft_bank.model.enums.CardType;
+import com.solid.soft.solid_soft_bank.repository.CardRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -38,9 +40,8 @@ public class CardService {
     }
 
     @Transactional
-    public void updateBalanceAndLastTransactionTime(final String cardNo, final Double amount) {
-        cardRepository.findByCardNo(cardNo);
-
+    public void decreaseBalance(final String cardNo, final Double amount) {
+        cardRepository.decreaseBalance(cardNo, amount, Instant.now());
         log.debug("Balance and Last Transaction Time of card whose cardNo {} has been updated!", cardNo);
     }
 
