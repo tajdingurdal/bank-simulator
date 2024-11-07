@@ -29,7 +29,6 @@ This project utilizes the following technologies:
 ## Contributing
 
 If you wish to contribute, please create a pull request or open an issue.
-**tajdingurdal@gmail.com**
 
 
 
