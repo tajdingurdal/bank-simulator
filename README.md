@@ -22,7 +22,7 @@ This project is a **simulation bank integration** developed for our e-commerce a
 
 - **Java JDK** 8 or higher
 - **Maven** 3.0 or higher
-- **Docker** and **Docker Compose**
+- **Docker**
 
 
 
