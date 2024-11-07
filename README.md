@@ -18,12 +18,18 @@ This project is a **simulation bank integration** developed for our e-commerce a
 - **Database Management**: Manages database changes with Liquibase.
 - **Flexible Architecture**: Built with Spring 3.2.8 and Maven.
 
-## Requirements
+## Technologies
+This project utilizes the following technologies:
 
-- **Java JDK** 8 or higher
-- **Maven** 3.0 or higher
-- **Docker** and **Docker Compose**
+- **Docker**
+- **Liquibase**
+- **Spring Framework 3.2.8**
+- **Maven**
 
+## Contributing
+
+If you wish to contribute, please create a pull request or open an issue.
+**tajdingurdal@gmail.com**
 
 
 
