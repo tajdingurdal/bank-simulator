@@ -16,8 +16,6 @@ public class BaseEntryService {
 
     public PaymentTransactionEntryEntity createEntry(final Double amount,
                                                       final String currency,
-                                                      final String failedRedirectURL,
-                                                      final String successRedirectURL,
                                                       final Long paymentTransactionId,
                                                       final String resultMessage,
                                                       final boolean status,
@@ -25,8 +23,6 @@ public class BaseEntryService {
         final PaymentTransactionEntryEntity authenticateEntry = new PaymentTransactionEntryEntity();
         authenticateEntry.setAmount(amount);
         authenticateEntry.setCurrency(currency);
-        authenticateEntry.setFailedRedirectURL(failedRedirectURL);
-        authenticateEntry.setSuccessRedirectURL(successRedirectURL);
         authenticateEntry.setResultMessage(resultMessage);
         authenticateEntry.setTransactionType(type);
         authenticateEntry.setStatus(status);

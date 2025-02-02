@@ -13,5 +13,5 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
 
     Optional<PaymentTransactionEntity> findByMerchantTransactionCode(String merchantTransactionCode);
 
-    Optional<PaymentTransactionEntity> findByMerchandId(Long merchandId);
+    Optional<PaymentTransactionEntity> findByMerchantId(Long merchandId);
 }

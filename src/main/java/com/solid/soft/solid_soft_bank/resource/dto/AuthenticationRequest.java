@@ -1,14 +1,14 @@
-package com.solid.soft.solid_soft_bank.model.dto;
+package com.solid.soft.solid_soft_bank.resource.dto;
 
-public class AuthenticateRequestDTO {
+import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
+
+public class AuthenticationRequest {
 
     private String merchantTransactionCode;
     private String apiKey;
     private String bankTransactionCode;
     private double amount;
     private String currency;
-    private String successRedirectURL;
-    private String failureRedirectURL;
     private CardDTO card;
 
     public String getMerchantTransactionCode() {
@@ -33,22 +33,6 @@ public class AuthenticateRequestDTO {
 
     public void setBankTransactionCode(final String bankTransactionCode) {
         this.bankTransactionCode = bankTransactionCode;
-    }
-
-    public String getSuccessRedirectURL() {
-        return successRedirectURL;
-    }
-
-    public void setSuccessRedirectURL(final String successRedirectURL) {
-        this.successRedirectURL = successRedirectURL;
-    }
-
-    public String getFailureRedirectURL() {
-        return failureRedirectURL;
-    }
-
-    public void setFailureRedirectURL(final String failureRedirectURL) {
-        this.failureRedirectURL = failureRedirectURL;
     }
 
     public double getAmount() {

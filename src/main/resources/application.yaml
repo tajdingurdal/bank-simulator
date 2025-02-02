@@ -25,9 +25,9 @@ logging:
 application:
   sample:
     card:
-      sample-card-no: '5105105105105100'
+
   temporary:
     otp: 12345
   payment:
-    url: http://localhost:${server.port}/bank/checkout
-    otp-url: http://localhost:${server.port}/bank/ui/pay?bankTransactionCode=
+    url: http://localhost:${server.port}/payment/ui/checkout
+    otp-url: http://localhost:${server.port}/payment/ui/pay?bankTransactionCode=

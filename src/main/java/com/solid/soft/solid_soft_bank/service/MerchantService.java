@@ -30,20 +30,16 @@ public class MerchantService {
         return merchantEntity.map(mapper::toDto).orElse(null);
     }
 
-    public MerchantDTO create(String name, String webSite) throws InstanceAlreadyExistsException {
-        final Optional<MerchantEntity> merchantEntityByName    = repository.findByName(name);
-        final Optional<MerchantEntity> merchantEntityByWebsite = repository.findByWebSite(webSite);
-
-        if (merchantEntityByName.isPresent() || merchantEntityByWebsite.isPresent()) {
+    public MerchantDTO create(final MerchantDTO dto) throws InstanceAlreadyExistsException {
+        if (repository.existsByNameAndWebSite(dto.getName(), dto.getWebSite())) {
             throw new InstanceAlreadyExistsException("Merchant already created by this name and website");
         }
 
-        String apiKey = String.format(UUID.randomUUID() + "%s%s%s", name.toLowerCase().replaceAll(" ", ""), webSite, ZonedDateTime.now().toInstant().toEpochMilli());
-
-        final MerchantEntity savedMerchantEntity = repository.save(new MerchantEntity(name, webSite, apiKey));
-        final MerchantDTO dto = mapper.toDto(savedMerchantEntity);
+        String apiKey = String.format(UUID.randomUUID() + "%s%s%s", dto.getName().toLowerCase().replaceAll(" ", ""), dto.getWebSite(), ZonedDateTime.now().toInstant().toEpochMilli());
+        MerchantEntity entity = mapper.toEntity(dto);
+        final MerchantEntity savedMerchantEntity = repository.save(entity);
         log.debug("Merchant created! {}", savedMerchantEntity);
-        return dto;
+        return mapper.toDto(savedMerchantEntity);
     }
 
     public MerchantDTO findMerchantById(Long id) {

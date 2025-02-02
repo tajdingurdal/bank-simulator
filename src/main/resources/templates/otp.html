@@ -30,7 +30,7 @@
 	<div align="center">
 		<h1>Validation Code</h1>
 		<h4>Validation code has been sent to your phone. Please enter it.</h4>
-		<form action="#" th:action="@{/bank/ui/validate-otp}" method="get">
+		<form action="#" th:action="@{/payment/ui/validate-otp}" method="get">
 			<label>Validate Code:</label>
 			<input type="text" name="otpCode" th:value="${otpCode}" /><br/>
 			<input type="hidden" name="bankTransactionCode" th:value="${bankTransactionCode}">

@@ -3,17 +3,12 @@ package com.solid.soft.solid_soft_bank.resource;
 import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
 import com.solid.soft.solid_soft_bank.service.MerchantService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceAlreadyExistsException;
 
 @RestController
-@RequestMapping("/merchant")
+@RequestMapping("/api/v1/merchant")
 public class MerchantResource {
 
     private final MerchantService merchantService;
@@ -21,8 +16,8 @@ public class MerchantResource {
     public MerchantResource(final MerchantService merchantService) {this.merchantService = merchantService;}
 
     @PostMapping
-    public ResponseEntity<MerchantDTO> create(@RequestParam String name, @RequestParam String webSite) throws InstanceAlreadyExistsException {
-        return ResponseEntity.ok(merchantService.create(name, webSite));
+    public ResponseEntity<MerchantDTO> create(@RequestBody  final MerchantDTO dto) throws InstanceAlreadyExistsException {
+        return ResponseEntity.ok(merchantService.create(dto));
     }
 
     @GetMapping("/{id}")

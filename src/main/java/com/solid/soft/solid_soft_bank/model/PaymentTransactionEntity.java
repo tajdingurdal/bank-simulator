@@ -17,7 +17,7 @@ public class PaymentTransactionEntity extends BaseEntity {
     private String merchantTransactionCode;
 
     @Column(name = "merchant_id")
-    private Long merchandId;
+    private Long merchantId;
 
     @ManyToOne
     @JoinColumn(name = "merchant_id", updatable = false, insertable = false)
@@ -25,11 +25,11 @@ public class PaymentTransactionEntity extends BaseEntity {
 
     public PaymentTransactionEntity(final String bankTransactionCode,
                                     final String merchantTransactionCode,
-                                    final Long merchandId,
+                                    final Long merchantId,
                                     final MerchantEntity merchantEntity) {
         this.bankTransactionCode = bankTransactionCode;
         this.merchantTransactionCode = merchantTransactionCode;
-        this.merchandId = merchandId;
+        this.merchantId = merchantId;
         this.merchantEntity = merchantEntity;
     }
 
@@ -53,12 +53,12 @@ public class PaymentTransactionEntity extends BaseEntity {
         this.merchantTransactionCode = merchantTransactionCode;
     }
 
-    public Long getMerchandId() {
-        return merchandId;
+    public Long getMerchantId() {
+        return merchantId;
     }
 
-    public void setMerchandId(final Long merchandId) {
-        this.merchandId = merchandId;
+    public void setMerchantId(final Long merchandId) {
+        this.merchantId = merchandId;
     }
 
     public MerchantEntity getMerchantEntity() {

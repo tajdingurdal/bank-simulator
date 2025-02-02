@@ -22,12 +22,6 @@
             <column name="result_message" type="text">
                 <constraints nullable="false"/>
             </column>
-            <column name="success_redirect_url" type="text">
-                <constraints nullable="true"/>
-            </column>
-            <column name="failed_redirect_url" type="text">
-                <constraints nullable="true"/>
-            </column>
             <column name="amount" type="double">
                 <constraints nullable="false"/>
             </column>

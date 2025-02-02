@@ -2,17 +2,13 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 
-public class PaymentTransactionEntryDTO extends BaseDTO{
+public class PaymentTransactionEntryDTO extends BaseDTO {
 
     private PaymentTransactionType transactionType;
 
     private boolean status;
 
     private String resultMessage;
-
-    private String successRedirectURL;
-
-    private String failedRedirectURL;
 
     private Double amount;
 
@@ -47,22 +43,6 @@ public class PaymentTransactionEntryDTO extends BaseDTO{
 
     public void setResultMessage(final String resultMessage) {
         this.resultMessage = resultMessage;
-    }
-
-    public String getSuccessRedirectURL() {
-        return successRedirectURL;
-    }
-
-    public void setSuccessRedirectURL(final String successRedirectURL) {
-        this.successRedirectURL = successRedirectURL;
-    }
-
-    public String getFailedRedirectURL() {
-        return failedRedirectURL;
-    }
-
-    public void setFailedRedirectURL(final String failedRedirectURL) {
-        this.failedRedirectURL = failedRedirectURL;
     }
 
     public Double getAmount() {

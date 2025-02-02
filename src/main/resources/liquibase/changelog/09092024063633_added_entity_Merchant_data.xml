@@ -11,9 +11,10 @@
     <changeSet id="09092024063633-data" author="system" context="dev">
 
         <sql>
-            INSERT INTO merchant (id, name, web_site, api_key, created_date, last_modified_date)
-            VALUES
-                (CAST('1' AS BIGINT), 'Solid Soft', 'solidsoft.com', '2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387', '2024-10-22 10:50:00', NULL);
+            INSERT INTO merchant (id, name, web_site, server_api_url, api_key, callback_endpoint, success_redirect_url, failed_redirect_url, created_date, last_modified_date)
+            VALUES (CAST('1' AS BIGINT), 'Solid Soft', 'solidsoft.com', 'http://localhost:8081',
+                    '2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387', 'call-back', 'success','failed',
+                    '2024-10-22 10:50:00', NULL);
         </sql>
 
     </changeSet>

@@ -24,12 +24,6 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
     @Column(name = "result_message")
     private String resultMessage;
 
-    @Column(name = "success_redirect_url")
-    private String successRedirectURL;
-
-    @Column(name = "failed_redirect_url")
-    private String failedRedirectURL;
-
     @Column(name = "amount")
     private Double amount;
 
@@ -65,22 +59,6 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
 
     public void setResultMessage(final String resultMessage) {
         this.resultMessage = resultMessage;
-    }
-
-    public String getSuccessRedirectURL() {
-        return successRedirectURL;
-    }
-
-    public void setSuccessRedirectURL(final String successRedirectURL) {
-        this.successRedirectURL = successRedirectURL;
-    }
-
-    public String getFailedRedirectURL() {
-        return failedRedirectURL;
-    }
-
-    public void setFailedRedirectURL(final String failedRedirectURL) {
-        this.failedRedirectURL = failedRedirectURL;
     }
 
     public String getCurrency() {

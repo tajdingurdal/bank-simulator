@@ -4,6 +4,7 @@ import com.solid.soft.solid_soft_bank.mapper.PaymentTransactionEntryMapper;
 import com.solid.soft.solid_soft_bank.mapper.PaymentTransactionMapper;
 import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntity;
 import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
+import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
@@ -82,5 +83,9 @@ public class PaymentTransactionService {
         final Optional<PaymentTransactionEntryEntity> entity = entryRepository.findByPaymentTransactionIdAndTransactionType(paymentTransactionId,
                 paymentTransactionType);
         return entity.map(paymentTransactionEntryMapper::toDto).orElse(null);
+    }
+
+    public PaymentTransactionDTO findByMerchantIdOrFail(Long id){
+        return paymentTransactionRepository.findByMerchantId(id).map(paymentTransactionMapper::toDto).orElseThrow();
     }
 }

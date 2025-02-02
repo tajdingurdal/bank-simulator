@@ -1,8 +1,8 @@
-package com.solid.soft.solid_soft_bank.model.dto;
+package com.solid.soft.solid_soft_bank.resource.dto;
 
-import java.time.Instant;
+import com.solid.soft.solid_soft_bank.model.dto.BaseDTO;
 
-public class AuthenticateResponseDTO extends BaseDTO{
+public class AuthenticationResponse extends BaseDTO {
 
     private String  bankTransactionCode;
     private boolean status;
@@ -10,13 +10,13 @@ public class AuthenticateResponseDTO extends BaseDTO{
     private String url;
     private boolean otpRequired = true;
 
-    public AuthenticateResponseDTO() {
+    public AuthenticationResponse() {
         super();
     }
 
-    public AuthenticateResponseDTO(Long id, final String bankTransactionCode, final boolean status, final String message,
-                                   final String url) {
-        super(id, Instant.now(), Instant.now());
+    public AuthenticationResponse(Long id, final String bankTransactionCode, final boolean status, final String message,
+                                  final String url) {
+        super(id);
         this.bankTransactionCode = bankTransactionCode;
         this.status = status;
         this.message = message;
