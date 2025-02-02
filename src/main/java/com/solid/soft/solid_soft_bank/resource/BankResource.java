@@ -46,6 +46,14 @@ public class BankResource {
         this.cardService = cardService;
     }
 
+    /**
+     * First step.
+     * @param merchantTransactionCode
+     * @param apiKey
+     * @param amount
+     * @param currency
+     * @return
+     */
     @PostMapping("/subscribe")
     @ResponseBody
     public ResponseEntity<SubscribeResponseDTO> subscribe(@RequestParam(name = "merchantTransactionCode") String merchantTransactionCode,
@@ -56,6 +64,12 @@ public class BankResource {
         return ResponseEntity.ok(subscribeService.subscribe(merchantTransactionCode, apiKey, amount, currency));
     }
 
+    /**
+     * Second step.
+     * @param authenticateRequestDTO
+     * @return
+     * @throws InstanceAlreadyExistsException
+     */
     @PostMapping("/authenticate")
     @ResponseBody
     public AuthenticateResponseDTO authenticate(@RequestBody AuthenticateRequestDTO authenticateRequestDTO) throws InstanceAlreadyExistsException {
@@ -63,6 +77,12 @@ public class BankResource {
         return authenticateService.authenticatePrePayment(authenticateRequestDTO);
     }
 
+    /**
+     * Authenticating and returning otp page are together
+     * @param requestDTO
+     * @return
+     * @throws InstanceAlreadyExistsException
+     */
     @PostMapping("/authenticate/otp")
     @ResponseBody
     public AuthenticateResponseDTO authenticateAndRedirectOtpPage(@RequestBody AuthenticateRequestDTO requestDTO) throws InstanceAlreadyExistsException {

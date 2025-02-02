@@ -9,32 +9,15 @@
       Added data to the entity Card.
   -->
     <changeSet id="09092024063601-data" author="system" context="dev">
-        <loadData
-                tableName="card"
-                separator=";"
-                file="liquibase/data/fake_data/card.csv"
-                usePreparedStatements="true">
-            <column name="id" type="numeric"/>
-            <column name="name" type="string"/>
-            <column name="surname" type="string"/>
-            <column name="card_no" type="string"/>
-            <column name="expire_date" type="string"/>
-            <column name="cvc" type="string"/>
-            <column name="balance" type="numeric"/>
-            <column name="currency" type="string"/>
-            <column name="card_type" type="string"/>
-            <column name="status" type="string"/>
-            <column name="credit_limit" type="numeric"/>
-            <column name="spending_limit" type="numeric"/>
-            <column name="country" type="string"/>
-            <column name="fraud_risk_score" type="numeric"/>
-            <column name="otp_required" type="boolean"/>
-            <column name="last_transaction_time" type="datetime"/>
-            <column name="subscription_enabled" type="boolean"/>
-            <column name="outstanding_debt" type="numeric"/>
-            <column name="scheduled_payment_enabled" type="boolean"/>
-        </loadData>
 
+        <sql>
+            INSERT INTO card (id, name, surname, card_no, expire_date, cvc, balance, currency, card_type, status, credit_limit, spending_limit, country, fraud_risk_score, otp_required, last_transaction_time, subscription_enabled, outstanding_debt, scheduled_payment_enabled, created_date, last_modified_date)
+            VALUES
+                (CAST('1' AS BIGINT), 'Donald', 'Trump', '5105105105105100', '01/26', '123', 400.0, 'USD', 'CREDIT', 'ACTIVE', 5000.0, 1000.0, 'USA', 10, true, '2024-10-21 10:50:00', true, 100.0, true, '2024-10-22 10:50:00', '2024-10-22 10:53:00'),
+                (CAST('2' AS BIGINT), 'Joe', 'Biden', '4012888888881881', '02/25', '456', 250.0, 'EUR', 'DEBIT', 'ACTIVE', NULL, 500.0, 'Germany', 15, false, '2024-10-21 10:51:00', true, NULL, false, '2024-10-22 10:51:00', '2024-10-22 10:53:00'),
+                (CAST('3' AS BIGINT), 'Barack', 'Obama', '5555555555554444', '03/27', '789', 150.5, 'GBP', 'CREDIT', 'BLOCKED', 3000.0, 750.0, 'UK', 25, true, '2024-10-20 10:52:00', false, 50.5, true, '2024-10-22 10:52:00', '2024-10-22 10:53:00'),
+                (CAST('4' AS BIGINT), 'Angela', 'Merkel', '4111111111111111', '04/28', '321', 300.75, 'JPY', 'DEBIT', 'ACTIVE', NULL, 1000.0, 'Japan', 5, true, '2024-10-21 10:53:00', true, NULL, false, '2024-10-22 10:53:00', '2024-10-22 10:53:00');
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

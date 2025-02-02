@@ -4,14 +4,9 @@ import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface PaymentTransactionEntryMapper {
-
-    PaymentTransactionEntryEntity toEntity(PaymentTransactionEntryDTO dto);
-
-    PaymentTransactionEntryDTO toDto(PaymentTransactionEntryEntity entity);
+public interface PaymentTransactionEntryMapper extends BaseMapper<PaymentTransactionEntryDTO, PaymentTransactionEntryEntity> {
 
     default PaymentTransactionEntryDTO toDtoWithTransaction(PaymentTransactionEntryEntity entity, PaymentTransactionDTO paymentTransactionDTO) {
         if (entity == null) {

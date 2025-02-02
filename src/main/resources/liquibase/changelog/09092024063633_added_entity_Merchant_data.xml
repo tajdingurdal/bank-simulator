@@ -9,16 +9,12 @@
       Added data to the entity Merchant.
   -->
     <changeSet id="09092024063633-data" author="system" context="dev">
-        <loadData
-                tableName="merchant"
-                separator=";"
-                file="liquibase/data/fake_data/merchant.csv"
-                usePreparedStatements="true">
-            <column name="id" type="numeric"/>
-            <column name="name" type="string"/>
-            <column name="web_site" type="string"/>
-            <column name="api_key" type="text"/>
-        </loadData>
+
+        <sql>
+            INSERT INTO merchant (id, name, web_site, api_key, created_date, last_modified_date)
+            VALUES
+                (CAST('1' AS BIGINT), 'Solid Soft', 'solidsoft.com', '2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387', '2024-10-22 10:50:00', NULL);
+        </sql>
 
     </changeSet>
 

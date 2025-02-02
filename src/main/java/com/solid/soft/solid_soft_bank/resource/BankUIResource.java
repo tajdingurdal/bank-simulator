@@ -1,6 +1,7 @@
 package com.solid.soft.solid_soft_bank.resource;
 
 import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
+import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import com.solid.soft.solid_soft_bank.service.AuthenticateService;
 import com.solid.soft.solid_soft_bank.service.CardService;
@@ -72,6 +73,8 @@ public class BankUIResource {
             return "redirect:" + authenticateEntity.getFailedRedirectURL() + "?message=" + "otp-not-correct";
         }
         cardService.decreaseBalance(cardNo, authenticateEntity.getAmount());
+        PaymentTransactionDTO paymentTransactionDto = authenticateEntity.getPaymentTransactionDto();
+
         log.debug("OTP Validation success : {}", otpCode);
         return "redirect:" + authenticateEntity.getSuccessRedirectURL();
     }
