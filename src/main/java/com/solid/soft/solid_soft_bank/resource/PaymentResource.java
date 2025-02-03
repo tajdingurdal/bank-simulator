@@ -26,16 +26,14 @@ public class PaymentResource {
 
     private final PaymentInitializationService paymentInitService;
     private final PaymentAuthenticationService authService;
-    private final PaymentInitializationService paymentInitializationService;
     private final CardService cardService;
 
     @Value("${application.payment.otp-url}")
     public String otpUrl;
 
-    public PaymentResource(PaymentInitializationService paymentInitService, PaymentAuthenticationService authService, PaymentInitializationService paymentInitializationService, CardService cardService) {
+    public PaymentResource(PaymentInitializationService paymentInitService, PaymentAuthenticationService authService, CardService cardService) {
         this.paymentInitService = paymentInitService;
         this.authService = authService;
-        this.paymentInitializationService = paymentInitializationService;
         this.cardService = cardService;
     }
 
@@ -45,35 +43,27 @@ public class PaymentResource {
         return ResponseEntity.ok(paymentInitService.initializePayment(request));
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticatePayment(@RequestBody AuthenticationRequest request) throws InstanceAlreadyExistsException {
-        log.debug("Authenticating payment...");
-        return ResponseEntity.ok(authService.authenticatePrePayment(request));
-    }
-
     @PostMapping("/authenticate-and-prepare-otp")
     public AuthenticationResponse authenticatePaymentAndPrepareOtp(@RequestBody AuthenticationRequest dto) throws InstanceAlreadyExistsException {
 
         // Step 1: Authenticate the payment
         final AuthenticationResponse authResult = authService.authenticatePrePayment(dto);
-        if (!authResult .isStatus()) {
+        if (!authResult.isStatus()) {
             return authResult ;
         }
 
         // Step 2: Check OTP eligibility
         final CardDTO card = cardService.findByCardNo(dto.getCard().getCardNo());
-        if (!card.getOtpRequired()) {
+        if (authResult.isOtpRequired() && !card.getOtpRequired()) {
             return authService.createAuthenticateResponse(
                     authResult.getId(),
                     false,
                     "Card not supported OTP",
                     authResult.getBankTransactionCode(),
-                    null);
+                    null,
+                    card.getOtpRequired());
 
         }
-
-        // Step 3: Set OTP page URL
-        authResult.setUrl(this.otpUrl + authResult .getBankTransactionCode() + "&cardNo=" + card.getCardNo());
 
         return authResult ;
     }
@@ -81,7 +71,7 @@ public class PaymentResource {
     @GetMapping("/transaction/{merchantTransactionCode}")
     public ResponseEntity<PaymentTransactionEntryDTO> findSubscribeByMerchantTransactionCode(@PathVariable String merchantTransactionCode) {
         log.debug("Fetching transaction details for merchant transaction: {}", merchantTransactionCode);
-        final PaymentTransactionEntryDTO response = paymentInitializationService.findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode);
+        final PaymentTransactionEntryDTO response = paymentInitService.findSubscribeEntryByMerchantTransactionCode(merchantTransactionCode);
         return Optional.of(response)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

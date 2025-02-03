@@ -8,7 +8,6 @@ import com.solid.soft.solid_soft_bank.service.CallBackService;
 import com.solid.soft.solid_soft_bank.service.CaptureService;
 import com.solid.soft.solid_soft_bank.service.PaymentAuthenticationService;
 import com.solid.soft.solid_soft_bank.service.PaymentWebService;
-import com.solid.soft.solid_soft_bank.service.dto.CaptureRequest;
 import com.solid.soft.solid_soft_bank.service.dto.CheckoutPageData;
 import com.solid.soft.solid_soft_bank.service.dto.OtpValidationResult;
 import org.slf4j.Logger;
@@ -19,8 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-
-import static com.solid.soft.solid_soft_bank.model.enums.CallbackStatus.FAILURE;
 
 @Controller
 @RequestMapping("/payment/ui")
@@ -65,7 +62,7 @@ public class PaymentWebResource {
         log.debug("Processing payment authentication for card: {}", cardNo);
 
         final PaymentTransactionEntryDTO authenticateEntry = authService.findByBankTransactionCode(bankTransactionCode);
-        MerchantDTO merchant = authenticateEntry.getPaymentTransactionDto().getMerchantEntity();
+        MerchantDTO merchant = authenticateEntry.getPaymentTransactionDto().getMerchantDTO();
         try {
             if (Objects.nonNull(card.getName())) {
                 final String authenticateResult = authService.authenticatePaymentProcess(bankTransactionCode, card);

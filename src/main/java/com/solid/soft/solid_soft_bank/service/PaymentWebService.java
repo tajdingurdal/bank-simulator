@@ -33,7 +33,7 @@ public class PaymentWebService {
         card.setCurrency(authenticateEntry.getCurrency());
         pageData.setStatus(true);
         pageData.setCard(card);
-        pageData.setMerchant(paymentTransactionDto.getMerchantEntity());
+        pageData.setMerchant(paymentTransactionDto.getMerchantDTO());
         return pageData;
     }
 

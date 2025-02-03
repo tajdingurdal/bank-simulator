@@ -1,13 +1,13 @@
 package com.solid.soft.solid_soft_bank.service;
 
 import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
-import com.solid.soft.solid_soft_bank.resource.dto.AuthenticationRequest;
-import com.solid.soft.solid_soft_bank.resource.dto.AuthenticationResponse;
 import com.solid.soft.solid_soft_bank.model.dto.CardDTO;
 import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
+import com.solid.soft.solid_soft_bank.resource.dto.AuthenticationRequest;
+import com.solid.soft.solid_soft_bank.resource.dto.AuthenticationResponse;
 import com.solid.soft.solid_soft_bank.service.dto.CaptureRequest;
 import com.solid.soft.solid_soft_bank.service.dto.OtpValidationResult;
 import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
@@ -24,7 +24,7 @@ import static com.solid.soft.solid_soft_bank.model.enums.CallbackStatus.FAILURE;
 import static com.solid.soft.solid_soft_bank.model.enums.CallbackStatus.SUCCESS;
 
 @Service
-public class PaymentAuthenticationService extends BaseEntryService{
+public class PaymentAuthenticationService extends BaseEntryService {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentAuthenticationService.class);
 
@@ -38,6 +38,8 @@ public class PaymentAuthenticationService extends BaseEntryService{
     private String paymentUrl;
     @Value("${application.temporary.otp}")
     public String temporaryOtp;
+    @Value("${application.temporary.threshold}")
+    public double otpThreshold;
 
     public PaymentAuthenticationService(final PaymentInitializationService paymentInitializationService,
                                         final CardService cardService,
@@ -65,35 +67,57 @@ public class PaymentAuthenticationService extends BaseEntryService{
         AuthenticationResponse comparedData = compareDTODataAndDBDataToValidate(request, paymentTransactionDtoFromDB, bankTransactionCode);
 
         if (comparedData != null) {
-            final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(),
-                    paymentTransactionDtoFromDB.getId(), comparedData.getMessage(), false,
-                    PaymentTransactionType.AUTHENTICATE);
-            final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
-            return createAuthenticateResponse(savedAuthenticateEntry.getId(), false, comparedData.getMessage(), bankTransactionCode, null);
+            return handleFailedAuthentication(request, paymentTransactionDtoFromDB.getId(), comparedData.getMessage(), bankTransactionCode);
         }
 
         if (Objects.nonNull(request.getCard())) {
             final String validationCardResult = cardService.processValidationCard(request.getCard());
             if (validationCardResult != null) {
-                final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(),
-                       paymentTransactionDtoFromDB.getId(), validationCardResult, false, PaymentTransactionType.AUTHENTICATE);
-                final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
-                return createAuthenticateResponse(savedAuthenticateEntry.getId(), false, validationCardResult, bankTransactionCode, null);
+                return handleFailedAuthentication(request, paymentTransactionDtoFromDB.getId(), validationCardResult, bankTransactionCode);
             }
         }
 
-        final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(),
-               paymentTransactionDtoFromDB.getId(), ResponseMessages.AUTHENTICATE_SUCCESS, true, PaymentTransactionType.AUTHENTICATE);
+        final PaymentTransactionEntryEntity authenticateEntry = createEntry(
+                request.getAmount(),
+                request.getCurrency(),
+                paymentTransactionDtoFromDB.getId(),
+                ResponseMessages.AUTHENTICATE_SUCCESS,
+                true,
+                PaymentTransactionType.AUTHENTICATE);
+
         final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
 
         log.debug("Pre-payment authentication process completed");
 
-        AuthenticationResponse response = createAuthenticateResponse(savedAuthenticateEntry.getId(), true, ResponseMessages.AUTHENTICATE_SUCCESS, bankTransactionCode, String.format(paymentUrl + "?bankTransactionCode=%s", bankTransactionCode));
-        if (request.getAmount() < 50) {
-            response.setOtpRequired(false);
-            response.setUrl(null);
+        boolean otpRequired = request.getAmount() >= otpThreshold;
+
+        String paymentUrlWithParams = otpRequired ? String.format(paymentUrl + "?bankTransactionCode=%s", bankTransactionCode) : null;
+        String message = otpRequired ? ResponseMessages.AUTHENTICATE_SUCCESS : ResponseMessages.AUTHENTICATE_SUCCESS_AND_OTP_NOT_REQUIRED;
+
+        if (!otpRequired) {
+            processSuccessfulPayment(
+                    paymentTransactionDtoFromDB.getMerchantDTO(),
+                    paymentTransactionDtoFromDB.getMerchantTransactionCode(),
+                    paymentTransactionDtoFromDB.getBankTransactionCode(),
+                    request.getCard().getCardNo(),
+                    request.getAmount()
+            );
         }
-        return response;
+
+        return createAuthenticateResponse(
+                savedAuthenticateEntry.getId(),
+                true,
+                message,
+                bankTransactionCode,
+                paymentUrlWithParams,
+                otpRequired
+        );
+    }
+
+    private AuthenticationResponse handleFailedAuthentication(AuthenticationRequest request, Long paymentTransactionId, String message, String bankTransactionCode) throws InstanceAlreadyExistsException {
+        final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(), paymentTransactionId, message, false, PaymentTransactionType.AUTHENTICATE);
+        final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
+        return createAuthenticateResponse(savedAuthenticateEntry.getId(), false, message, bankTransactionCode, null, true);
     }
 
     public String authenticatePaymentProcess(final String bankTransactionCode, final CardDTO dto) {
@@ -106,7 +130,9 @@ public class PaymentAuthenticationService extends BaseEntryService{
         }
 
         String checkMissingCardDetails = cardService.processValidationCard(dto);
-        if (checkMissingCardDetails != null) {return checkMissingCardDetails;}
+        if (checkMissingCardDetails != null) {
+            return checkMissingCardDetails;
+        }
 
         log.debug("Payment authentication process completed successfully: Bank Transaction Code: {}", bankTransactionCode);
 
@@ -120,12 +146,17 @@ public class PaymentAuthenticationService extends BaseEntryService{
 
         final String merchantTransactionCode = dto.getMerchantTransactionCode();
         final String apiKey = dto.getApiKey();
+        CardDTO card = dto.getCard();
 
         if (paymentTransactionDtoFromDB == null) {
             return setErrorResponse(response, ResponseMessages.transactionNotFound(bankTransactionCode));
         }
 
-        final MerchantDTO merchantDTOFromDB = paymentTransactionDtoFromDB.getMerchantEntity();
+        if (card == null) {
+            return setErrorResponse(response, ResponseMessages.cardRequired(merchantTransactionCode));
+        }
+
+        final MerchantDTO merchantDTOFromDB = paymentTransactionDtoFromDB.getMerchantDTO();
         final String merchantTransactionCodeFromDB = paymentTransactionDtoFromDB.getMerchantTransactionCode();
         final String bankTransactionCodeFromDB = paymentTransactionDtoFromDB.getBankTransactionCode();
 
@@ -170,8 +201,9 @@ public class PaymentAuthenticationService extends BaseEntryService{
                                                              final boolean status,
                                                              final String message,
                                                              final String bankTransactionCode,
-                                                             final String paymentUrl) {
-        return new AuthenticationResponse(entryId, bankTransactionCode, status, message, paymentUrl);
+                                                             final String paymentUrl,
+                                                             boolean otpRequired) {
+        return new AuthenticationResponse(entryId, bankTransactionCode, status, message, paymentUrl, otpRequired);
     }
 
     public OtpValidationResult validateOtp(String otpCode, String bankTransactionCode, String cardNo) {
@@ -182,10 +214,18 @@ public class PaymentAuthenticationService extends BaseEntryService{
             throw new EntityNotFoundException(String.format("Payment Transaction not found by Bank Transaction Code %s", bankTransactionCode));
         }
 
-        MerchantDTO merchant = authenticateEntry.getPaymentTransactionDto().getMerchantEntity();
+        MerchantDTO merchant = authenticateEntry.getPaymentTransactionDto().getMerchantDTO();
         String merchantTransactionCode = authenticateEntry.getPaymentTransactionDto().getMerchantTransactionCode();
+        Double amount = authenticateEntry.getAmount();
 
         result.setMerchant(merchant);
+
+        if (amount < otpThreshold) {
+            result.setValid(true);
+            result.setAmount(amount);
+            processSuccessfulPayment(merchant, merchantTransactionCode, bankTransactionCode, cardNo, amount);
+            return result;
+        }
 
         if (!otpCode.equals(temporaryOtp)) {
             result.setValid(false);
@@ -193,11 +233,16 @@ public class PaymentAuthenticationService extends BaseEntryService{
             return result;
         }
 
-        Double amount = authenticateEntry.getAmount();
-        result.setAmount(amount);
         result.setValid(true);
-        captureService.capture(new CaptureRequest(bankTransactionCode, cardNo, amount, merchant));
-        callBackService.sendCallBack(merchant, SUCCESS, merchantTransactionCode);
+        result.setAmount(amount);
+        processSuccessfulPayment(merchant, merchantTransactionCode, bankTransactionCode, cardNo, amount);
         return result;
+    }
+
+    private void processSuccessfulPayment(MerchantDTO merchant, String merchantTransactionCode, String bankTransactionCode, String cardNo, Double amount) {
+        boolean captured = captureService.capture(new CaptureRequest(bankTransactionCode, cardNo, amount, merchant));
+        if (captured) {
+            callBackService.sendCallBack(merchant, SUCCESS, merchantTransactionCode);
+        }
     }
 }

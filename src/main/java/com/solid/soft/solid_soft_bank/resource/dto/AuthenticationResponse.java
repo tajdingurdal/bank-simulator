@@ -8,14 +8,18 @@ public class AuthenticationResponse extends BaseDTO {
     private boolean status;
     private String  message;
     private String url;
-    private boolean otpRequired = true;
+    private boolean otpRequired;
 
     public AuthenticationResponse() {
         super();
     }
 
-    public AuthenticationResponse(Long id, final String bankTransactionCode, final boolean status, final String message,
-                                  final String url) {
+    public AuthenticationResponse(final Long id,
+                                  final String bankTransactionCode,
+                                  final boolean status,
+                                  final String message,
+                                  final String url,
+                                  final boolean otpRequired) {
         super(id);
         this.bankTransactionCode = bankTransactionCode;
         this.status = status;

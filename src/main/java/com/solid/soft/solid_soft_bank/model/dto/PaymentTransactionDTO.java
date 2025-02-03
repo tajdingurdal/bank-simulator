@@ -8,7 +8,7 @@ public class PaymentTransactionDTO extends BaseDTO{
 
     private Long merchandId;
 
-    private MerchantDTO merchantEntity;
+    private MerchantDTO merchantDTO;
 
     public PaymentTransactionDTO() {
     }
@@ -37,11 +37,11 @@ public class PaymentTransactionDTO extends BaseDTO{
         this.merchandId = merchandId;
     }
 
-    public MerchantDTO getMerchantEntity() {
-        return merchantEntity;
+    public MerchantDTO getMerchantDTO() {
+        return merchantDTO;
     }
 
-    public void setMerchantEntity(final MerchantDTO merchantEntity) {
-        this.merchantEntity = merchantEntity;
+    public void setMerchantDTO(final MerchantDTO merchantDTO) {
+        this.merchantDTO = merchantDTO;
     }
 }

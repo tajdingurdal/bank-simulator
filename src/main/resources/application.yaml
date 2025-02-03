@@ -28,6 +28,7 @@ application:
 
   temporary:
     otp: 12345
+    threshold: 100.0
   payment:
     url: http://localhost:${server.port}/payment/ui/checkout
     otp-url: http://localhost:${server.port}/payment/ui/pay?bankTransactionCode=

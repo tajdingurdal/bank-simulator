@@ -7,6 +7,7 @@ public class ResponseMessages {
     public static final String SUBSCRIBE_FAILED = "Subscribe Failed!";
     public static final String AUTHENTICATE_FAILED = "Authentication failed! Please check your credentials and try again.";
     public static final String AUTHENTICATE_SUCCESS = "Authentication successful! You are now logged in.";
+    public static final String AUTHENTICATE_SUCCESS_AND_OTP_NOT_REQUIRED = "Authentication successful! You are now logged in. Due to low price process, there is no need for OTP authentication.";
 
 
     public static String nullParameterMessage(String merchantTransactionCode, String apiKey, Double amount, String currency) {
@@ -66,6 +67,10 @@ public class ResponseMessages {
 
     public static String doesNotMatchCurrencyMessage(String currency) {
         return String.format("Transaction currency '%s' does not match the expected currency.", currency);
+    }
+
+    public static String cardRequired(String merchantTransactionCode) {
+        return String.format("Card info is required! %s", merchantTransactionCode);
     }
 
 }

@@ -14,8 +14,9 @@ public class CaptureService {
         this.callBackService = callBackService;
     }
 
-    public void capture(CaptureRequest request) {
+    public boolean capture(CaptureRequest request) {
         cardService.decreaseBalance(request.getCardNo(), request.getAmount());
+        return true;
     }
 
 }
