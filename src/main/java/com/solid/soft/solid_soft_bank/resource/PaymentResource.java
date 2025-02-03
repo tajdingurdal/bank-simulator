@@ -28,8 +28,6 @@ public class PaymentResource {
     private final PaymentAuthenticationService authService;
     private final CardService cardService;
 
-    @Value("${application.payment.otp-url}")
-    public String otpUrl;
 
     public PaymentResource(PaymentInitializationService paymentInitService, PaymentAuthenticationService authService, CardService cardService) {
         this.paymentInitService = paymentInitService;

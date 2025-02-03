@@ -34,8 +34,8 @@ public class PaymentAuthenticationService extends BaseEntryService {
     private final CallBackService callBackService;
     private final CaptureService captureService;
 
-    @Value("${application.payment.url}")
-    private String paymentUrl;
+    @Value("${application.payment.otp-url}")
+    private String otpUrl;
     @Value("${application.temporary.otp}")
     public String temporaryOtp;
     @Value("${application.temporary.threshold}")
@@ -90,8 +90,7 @@ public class PaymentAuthenticationService extends BaseEntryService {
         log.debug("Pre-payment authentication process completed");
 
         boolean otpRequired = request.getAmount() >= otpThreshold;
-
-        String paymentUrlWithParams = otpRequired ? String.format(paymentUrl + "?bankTransactionCode=%s", bankTransactionCode) : null;
+        String otpPageUrl = otpRequired ? String.format("%s?bankTransactionCode=%s&cardNo=%s", otpUrl, bankTransactionCode, request.getCard().getCardNo()) : null;
         String message = otpRequired ? ResponseMessages.AUTHENTICATE_SUCCESS : ResponseMessages.AUTHENTICATE_SUCCESS_AND_OTP_NOT_REQUIRED;
 
         if (!otpRequired) {
@@ -109,7 +108,7 @@ public class PaymentAuthenticationService extends BaseEntryService {
                 true,
                 message,
                 bankTransactionCode,
-                paymentUrlWithParams,
+                otpPageUrl,
                 otpRequired
         );
     }

@@ -31,4 +31,13 @@ application:
     threshold: 100.0
   payment:
     url: http://localhost:${server.port}/payment/ui/checkout
-    otp-url: http://localhost:${server.port}/payment/ui/pay?bankTransactionCode=
+    otp-url: http://localhost:${server.port}/payment/ui/pay
+
+#  http://localhost:9292/payment/ui/pay?
+#  bankTransactionCode=2fe77e84-5cdc-1576-1rgytyuuw1805ae6a92be-136f-4ccf-9a75-aff0b58c2e3d1738591686918&
+#  name=Donald&
+#  surname=Trump&
+#  cardNo=5105105105105100&
+#  expiredDate=01%2F26&
+#  cvc=123&amount=150.0&
+#  currency=USD

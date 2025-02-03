@@ -6,7 +6,7 @@ public class PaymentTransactionDTO extends BaseDTO{
 
     private String merchantTransactionCode;
 
-    private Long merchandId;
+    private Long merchantId;
 
     private MerchantDTO merchantDTO;
 
@@ -29,12 +29,12 @@ public class PaymentTransactionDTO extends BaseDTO{
         this.merchantTransactionCode = merchantTransactionCode;
     }
 
-    public Long getMerchandId() {
-        return merchandId;
+    public Long getMerchantId() {
+        return merchantId;
     }
 
-    public void setMerchandId(final Long merchandId) {
-        this.merchandId = merchandId;
+    public void setMerchantId(final Long merchantId) {
+        this.merchantId = merchantId;
     }
 
     public MerchantDTO getMerchantDTO() {
