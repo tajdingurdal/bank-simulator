@@ -1,11 +1,5 @@
 # Simulation Bank Integration
 
-## Table of Contents
-
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Requirements](#requirements)
-
 ## About the Project
 
 This project is a **simulation bank integration** developed for our e-commerce application. It is used for testing and developing payment transactions until real bank integrations are completed.
