@@ -1,0 +1,150 @@
+{
+	"info": {
+		"_postman_id": "4d346e58-e3af-44f0-8e26-24b0e9e8c441",
+		"name": "SOLID BANK",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21649741",
+		"_collection_link": "https://solar-space-176629.postman.co/workspace/New-Team-Workspace~3320fdcc-3a13-4805-908a-73129d29faaf/collection/21649741-4d346e58-e3af-44f0-8e26-24b0e9e8c441?action=share&source=collection_link&creator=21649741"
+	},
+	"item": [
+		{
+			"name": "Initial Subscription",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchantTransactionCode\": \"2fe77e84-5cdc-1576-1rgytyuuw18002118133\",\r\n    \"apiKey\": \"2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387\",\r\n    \"amount\": 105,\r\n    \"currency\": \"USD\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9292/api/v1/payments/initialize",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9292",
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"initialize"
+					],
+					"query": [
+						{
+							"key": "merchantTransactionCode",
+							"value": "2fe77e84-5cdc-1576-1rgytyuuw5",
+							"disabled": true
+						},
+						{
+							"key": "apiKey",
+							"value": "2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387",
+							"disabled": true
+						},
+						{
+							"key": "amount",
+							"value": "70",
+							"disabled": true
+						},
+						{
+							"key": "currency",
+							"value": "USD",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Merchant",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Your Name\",\r\n  \"webSite\": \"https://yourwebsite.com\",\r\n  \"serverApiUrl\": \"https://api.yourserver.com\",\r\n  \"apiKey\": \"your-api-key\",\r\n  \"callbackEndpoint\": \"https://yourcallback.com/endpoint\",\r\n  \"successRedirectURL\": \"https://yourwebsite.com/success\",\r\n  \"failedRedirectURL\": \"https://yourwebsite.com/failed\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9292/api/v1/merchant",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9292",
+					"path": [
+						"api",
+						"v1",
+						"merchant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FindMerchant By ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:9292/api/v1/merchant/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9292",
+					"path": [
+						"api",
+						"v1",
+						"merchant",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authenticate Payment And Prepare OTP",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchantTransactionCode\": \"2fe77e84-5cdc-1576-1rgytyuuw18002118133\",\r\n    \"apiKey\": \"2fe77e84-5cdc-4576-9ace-0678149c9310solidbazaarwww.solidbazaar.com1722504211387\",\r\n    \"bankTransactionCode\": \"2fe77e84-5cdc-1576-1rgytyuuw18002118133a707f030-da68-42b6-b106-150999e2110b1738849143379\",\r\n    \"amount\": 105,\r\n    \"currency\": \"USD\",\r\n    \"card\": {\r\n        \"name\": \"Donald\",\r\n        \"surname\": \"Trump\",\r\n        \"cardNo\": \"5105105105105100\",\r\n        \"expiredDate\": \"01/26\",\r\n        \"cvc\": \"123\",\r\n        \"amount\": 105,\r\n        \"currency\": \"USD\"\r\n    }\r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9292/api/v1/payments/authenticate-and-prepare-otp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9292",
+					"path": [
+						"api",
+						"v1",
+						"payments",
+						"authenticate-and-prepare-otp"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

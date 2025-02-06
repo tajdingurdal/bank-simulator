@@ -37,6 +37,7 @@ public class MerchantService {
 
         String apiKey = String.format(UUID.randomUUID() + "%s%s%s", dto.getName().toLowerCase().replaceAll(" ", ""), dto.getWebSite(), ZonedDateTime.now().toInstant().toEpochMilli());
         MerchantEntity entity = mapper.toEntity(dto);
+        entity.setApiKey(apiKey);
         final MerchantEntity savedMerchantEntity = repository.save(entity);
         log.debug("Merchant created! {}", savedMerchantEntity);
         return mapper.toDto(savedMerchantEntity);

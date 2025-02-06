@@ -28,22 +28,4 @@ public class MerchantResource {
         }
         return ResponseEntity.ok(merchantDTO);
     }
-
-    @GetMapping
-    public ResponseEntity<MerchantDTO> findMerchantByNameAndWebsite(@RequestParam String name, @RequestParam String webSite) {
-        final MerchantDTO merchantDTO = merchantService.findMerchantByNameAndWebsite(name, webSite);
-        if (merchantDTO == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(merchantDTO);
-    }
-
-    @GetMapping("/api-key/{apiKey}")
-    public ResponseEntity<MerchantDTO> findMerchantByApiKey(@PathVariable("apiKey") String apiKey) {
-        final MerchantDTO merchantDTO = merchantService.findByApikey(apiKey);
-        if (merchantDTO == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(merchantDTO);
-    }
 }
