@@ -10,6 +10,17 @@ public class AuthenticationRequest {
     private double amount;
     private String currency;
     private CardDTO card;
+    private boolean isExternalProcess;
+
+    public AuthenticationRequest(String merchantTransactionCode, String apiKey, String bankTransactionCode, double amount, String currency, CardDTO card, boolean isExternalProcess) {
+        this.merchantTransactionCode = merchantTransactionCode;
+        this.apiKey = apiKey;
+        this.bankTransactionCode = bankTransactionCode;
+        this.amount = amount;
+        this.currency = currency;
+        this.card = card;
+        this.isExternalProcess = isExternalProcess;
+    }
 
     public String getMerchantTransactionCode() {
         return merchantTransactionCode;
@@ -57,5 +68,13 @@ public class AuthenticationRequest {
 
     public void setCard(final CardDTO card) {
         this.card = card;
+    }
+
+    public boolean isExternalProcess() {
+        return isExternalProcess;
+    }
+
+    public void setExternalProcess(boolean externalProcess) {
+        isExternalProcess = externalProcess;
     }
 }

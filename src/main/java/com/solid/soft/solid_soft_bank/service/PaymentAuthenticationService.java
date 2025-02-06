@@ -70,12 +70,16 @@ public class PaymentAuthenticationService extends BaseEntryService {
             return handleFailedAuthentication(request, paymentTransactionDtoFromDB.getId(), comparedData.getMessage(), bankTransactionCode);
         }
 
-        if (Objects.nonNull(request.getCard())) {
+        if (Objects.nonNull(request.getCard()) && request.isExternalProcess()) {
             final String validationCardResult = cardService.processValidationCard(request.getCard());
             if (validationCardResult != null) {
                 return handleFailedAuthentication(request, paymentTransactionDtoFromDB.getId(), validationCardResult, bankTransactionCode);
             }
         }
+
+        boolean otpRequired = request.getAmount() >= otpThreshold;
+        String otpPageUrl = otpRequired ? String.format("%s?bankTransactionCode=%s&cardNo=%s", otpUrl, bankTransactionCode, request.getCard().getCardNo()) : null;
+        String message = otpRequired ? ResponseMessages.AUTHENTICATE_SUCCESS : ResponseMessages.AUTHENTICATE_SUCCESS_AND_OTP_NOT_REQUIRED;
 
         final PaymentTransactionEntryEntity authenticateEntry = createEntry(
                 request.getAmount(),
@@ -83,15 +87,12 @@ public class PaymentAuthenticationService extends BaseEntryService {
                 paymentTransactionDtoFromDB.getId(),
                 ResponseMessages.AUTHENTICATE_SUCCESS,
                 true,
+                request.isExternalProcess(),
                 PaymentTransactionType.AUTHENTICATE);
 
         final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
 
         log.debug("Pre-payment authentication process completed");
-
-        boolean otpRequired = request.getAmount() >= otpThreshold;
-        String otpPageUrl = otpRequired ? String.format("%s?bankTransactionCode=%s&cardNo=%s", otpUrl, bankTransactionCode, request.getCard().getCardNo()) : null;
-        String message = otpRequired ? ResponseMessages.AUTHENTICATE_SUCCESS : ResponseMessages.AUTHENTICATE_SUCCESS_AND_OTP_NOT_REQUIRED;
 
         if (!otpRequired) {
             processSuccessfulPayment(
@@ -114,7 +115,7 @@ public class PaymentAuthenticationService extends BaseEntryService {
     }
 
     private AuthenticationResponse handleFailedAuthentication(AuthenticationRequest request, Long paymentTransactionId, String message, String bankTransactionCode) throws InstanceAlreadyExistsException {
-        final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(), paymentTransactionId, message, false, PaymentTransactionType.AUTHENTICATE);
+        final PaymentTransactionEntryEntity authenticateEntry = createEntry(request.getAmount(), request.getCurrency(), paymentTransactionId, message, false, request.isExternalProcess(), PaymentTransactionType.AUTHENTICATE);
         final PaymentTransactionEntryEntity savedAuthenticateEntry = paymentTransactionService.saveEntry(authenticateEntry);
         return createAuthenticateResponse(savedAuthenticateEntry.getId(), false, message, bankTransactionCode, null, true);
     }
@@ -238,7 +239,7 @@ public class PaymentAuthenticationService extends BaseEntryService {
         return result;
     }
 
-    private void processSuccessfulPayment(MerchantDTO merchant, String merchantTransactionCode, String bankTransactionCode, String cardNo, Double amount) {
+    public void processSuccessfulPayment(MerchantDTO merchant, String merchantTransactionCode, String bankTransactionCode, String cardNo, Double amount) {
         boolean captured = captureService.capture(new CaptureRequest(bankTransactionCode, cardNo, amount, merchant));
         if (captured) {
             callBackService.sendCallBack(merchant, SUCCESS, merchantTransactionCode);

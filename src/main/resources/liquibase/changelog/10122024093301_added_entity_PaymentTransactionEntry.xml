@@ -19,6 +19,9 @@
             <column name="status" type="boolean">
                 <constraints nullable="false"/>
             </column>
+            <column name="external_process" type="boolean">
+                <constraints nullable="true"/>
+            </column>
             <column name="result_message" type="text">
                 <constraints nullable="false"/>
             </column>

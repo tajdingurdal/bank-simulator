@@ -2,11 +2,16 @@ package com.solid.soft.solid_soft_bank.model.dto;
 
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 
+/**
+ * A DTO of {{@link com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity}}
+ */
 public class PaymentTransactionEntryDTO extends BaseDTO {
 
     private PaymentTransactionType transactionType;
 
     private boolean status;
+
+    private Boolean isExternalProcess;
 
     private String resultMessage;
 
@@ -35,6 +40,14 @@ public class PaymentTransactionEntryDTO extends BaseDTO {
 
     public void setStatus(final boolean status) {
         this.status = status;
+    }
+
+    public Boolean getExternalProcess() {
+        return isExternalProcess;
+    }
+
+    public void setExternalProcess(Boolean externalProcess) {
+        isExternalProcess = externalProcess;
     }
 
     public String getResultMessage() {

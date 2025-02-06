@@ -4,11 +4,11 @@ import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntity;
 import com.solid.soft.solid_soft_bank.model.PaymentTransactionEntryEntity;
 import com.solid.soft.solid_soft_bank.model.dto.MerchantDTO;
 import com.solid.soft.solid_soft_bank.model.dto.PaymentTransactionEntryDTO;
-import com.solid.soft.solid_soft_bank.resource.dto.PaymentInitializationRequest;
-import com.solid.soft.solid_soft_bank.resource.dto.PaymentInitializationResponse;
 import com.solid.soft.solid_soft_bank.model.enums.PaymentTransactionType;
 import com.solid.soft.solid_soft_bank.repository.PaymentTransactionEntryRepository;
 import com.solid.soft.solid_soft_bank.repository.PaymentTransactionRepository;
+import com.solid.soft.solid_soft_bank.resource.dto.PaymentInitializationRequest;
+import com.solid.soft.solid_soft_bank.resource.dto.PaymentInitializationResponse;
 import com.solid.soft.solid_soft_bank.utils.ResponseMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class PaymentInitializationService extends BaseEntryService{
+public class PaymentInitializationService extends BaseEntryService {
 
     private final PaymentTransactionService paymentTransactionService;
     Logger log = LoggerFactory.getLogger(PaymentInitializationService.class);
@@ -50,6 +50,10 @@ public class PaymentInitializationService extends BaseEntryService{
         return paymentTransactionService.findSubscribeEntryByPaymentTransactionIdAndType(paymentTransactionId, PaymentTransactionType.SUBSCRIBE);
     }
 
+    public PaymentTransactionEntryDTO findSubscribeEntryByBankTransactionCode(String bankTransactionCode) {
+        return paymentTransactionService.findByBankTransactionCodeAndType(bankTransactionCode, PaymentTransactionType.SUBSCRIBE);
+    }
+
     public PaymentInitializationResponse initializePayment(final PaymentInitializationRequest request) throws IllegalStateException {
 
         String merchantTransactionCode = request.getMerchantTransactionCode();
@@ -74,6 +78,10 @@ public class PaymentInitializationService extends BaseEntryService{
 
         final MerchantDTO merchantDTO = merchantService.findByApikey(apiKey);
 
+        if (merchantDTO == null) {
+            throw new IllegalStateException("Merchant not found by API key: " + apiKey);
+        }
+
         // Save Payment Transaction Entity
         final PaymentTransactionEntity transaction = new PaymentTransactionEntity();
         transaction.setMerchantTransactionCode(merchantTransactionCode);
@@ -83,7 +91,7 @@ public class PaymentInitializationService extends BaseEntryService{
 
         // Save Subscribe
         final PaymentTransactionEntryEntity entry = createEntry(amount, currency, savedTransaction.getId(), ResponseMessages.SUBSCRIBE_SUCCESS,
-                subscribe, PaymentTransactionType.SUBSCRIBE);
+                subscribe, null, PaymentTransactionType.SUBSCRIBE);
         final PaymentTransactionEntryEntity savedPaymentTransactionEntryEntity = entryRepository.save(entry);
 
         // Return
@@ -110,7 +118,7 @@ public class PaymentInitializationService extends BaseEntryService{
 
         // Save Subscribe Entry
         final PaymentTransactionEntryEntity entry = createEntry(amount, currency, savedTransaction.getId(), validationResult,
-                false, PaymentTransactionType.SUBSCRIBE);
+                false, null, PaymentTransactionType.SUBSCRIBE);
         final PaymentTransactionEntryEntity savedEntry = entryRepository.save(entry);
 
         // Return
@@ -127,7 +135,7 @@ public class PaymentInitializationService extends BaseEntryService{
     private String validateSubscribe(final String merchantTransactionCode, final String apiKey, final Double amount, final String currency) {
 
 
-        if (StringUtils.isEmpty(merchantTransactionCode) || StringUtils.isEmpty(apiKey) || StringUtils.isEmpty(amount) || StringUtils.isEmpty(currency) ) {
+        if (StringUtils.isEmpty(merchantTransactionCode) || StringUtils.isEmpty(apiKey) || StringUtils.isEmpty(amount) || StringUtils.isEmpty(currency)) {
             return setErrorResponse(ResponseMessages.nullParameterMessage(merchantTransactionCode, apiKey, amount, currency));
         }
 

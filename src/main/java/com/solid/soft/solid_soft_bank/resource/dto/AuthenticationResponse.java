@@ -1,5 +1,6 @@
 package com.solid.soft.solid_soft_bank.resource.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.solid.soft.solid_soft_bank.model.dto.BaseDTO;
 
 public class AuthenticationResponse extends BaseDTO {
@@ -8,6 +9,7 @@ public class AuthenticationResponse extends BaseDTO {
     private boolean status;
     private String  message;
     private String url;
+    @JsonIgnore
     private boolean otpRequired;
 
     public AuthenticationResponse() {

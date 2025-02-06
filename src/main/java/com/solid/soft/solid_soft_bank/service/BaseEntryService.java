@@ -19,6 +19,7 @@ public class BaseEntryService {
                                                       final Long paymentTransactionId,
                                                       final String resultMessage,
                                                       final boolean status,
+                                                      final Boolean isExternal,
                                                       PaymentTransactionType type) {
         final PaymentTransactionEntryEntity authenticateEntry = new PaymentTransactionEntryEntity();
         authenticateEntry.setAmount(amount);
@@ -26,6 +27,7 @@ public class BaseEntryService {
         authenticateEntry.setResultMessage(resultMessage);
         authenticateEntry.setTransactionType(type);
         authenticateEntry.setStatus(status);
+        authenticateEntry.setExternalProcess(isExternal);
         authenticateEntry.setPaymentTransactionId(paymentTransactionId);
         return authenticateEntry;
     }

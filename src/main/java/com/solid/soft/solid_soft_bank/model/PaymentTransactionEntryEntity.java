@@ -21,6 +21,8 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
     @Column(name = "status")
     private boolean status;
 
+    @Column(name = "external_process")
+    private Boolean isExternalProcess;
     @Column(name = "result_message")
     private String resultMessage;
 
@@ -53,6 +55,17 @@ public class PaymentTransactionEntryEntity extends BaseEntity {
         this.status = status;
     }
 
+    public Boolean isExternalProcess() {
+        return isExternalProcess;
+    }
+
+    public void setExternalProcess(Boolean externalProcess) {
+        isExternalProcess = externalProcess;
+    }
+
+    public Boolean getExternalProcess() {
+        return isExternalProcess;
+    }
     public String getResultMessage() {
         return resultMessage;
     }

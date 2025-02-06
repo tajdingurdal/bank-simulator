@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.Objects;
 
 @Controller
@@ -32,6 +33,8 @@ public class PaymentWebResource {
 
     @Value("${application.temporary.otp}")
     public String temporaryOtp;
+    @Value("${application.temporary.threshold}")
+    public double otpThreshold;
 
     public PaymentWebResource(PaymentAuthenticationService authService, CallBackService callBackService, PaymentWebService paymentWebService, CaptureService captureService) {
         this.authService = authService;
@@ -41,15 +44,16 @@ public class PaymentWebResource {
     }
 
     @GetMapping("/checkout")
-    public String showPaymentForm(@RequestParam String bankTransactionCode, Model model) {
+    public String showPaymentForm(@RequestParam String bankTransactionCode, Model model) throws InstanceAlreadyExistsException {
 
-        log.debug("Initiating checkout for transaction: {}", bankTransactionCode);
-        CheckoutPageData checkoutPageData = paymentWebService.preparePaymentForm(bankTransactionCode);
+        log.debug("Initiating checkout page for transaction: {}", bankTransactionCode);
+        CheckoutPageData checkoutPageData = paymentWebService.prepareShowPaymentForm(bankTransactionCode);
         if (!checkoutPageData.isStatus()) {
             return "redirect:" + checkoutPageData.getMerchant().getFailedRedirectURL();
         }
         model.addAttribute("card", checkoutPageData.getCard());
         model.addAttribute("bankTransactionCode", bankTransactionCode);
+        log.info("SUCCESSFUL PROCESS: Redirecting to the payment page for transaction: {}", bankTransactionCode);
         return "payment";
     }
 
@@ -70,6 +74,19 @@ public class PaymentWebResource {
                     return "redirect:" + merchant.getFailedRedirectURL() + "?message=" + authenticateResult.toLowerCase().replace(" ", "-");
                 }
             }
+
+            if (!authenticateEntry.getExternalProcess() && !(card.getAmount() >= otpThreshold)) {
+                authService.processSuccessfulPayment(
+                        merchant,
+                        authenticateEntry.getPaymentTransactionDto().getMerchantTransactionCode(),
+                        bankTransactionCode,
+                        card.getCardNo(),
+                        card.getAmount()
+                );
+                return "redirect:" + merchant.getSuccessRedirectURL();
+            }
+
+
             model.addAttribute("otpCode", temporaryOtp);
             model.addAttribute("bankTransactionCode", bankTransactionCode);
             model.addAttribute("cardNo", card.getCardNo() == null ? cardNo : card.getCardNo());

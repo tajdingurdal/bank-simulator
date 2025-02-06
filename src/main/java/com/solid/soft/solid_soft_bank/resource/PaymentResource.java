@@ -11,7 +11,6 @@ import com.solid.soft.solid_soft_bank.service.PaymentAuthenticationService;
 import com.solid.soft.solid_soft_bank.service.PaymentInitializationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +44,7 @@ public class PaymentResource {
     public AuthenticationResponse authenticatePaymentAndPrepareOtp(@RequestBody AuthenticationRequest dto) throws InstanceAlreadyExistsException {
 
         // Step 1: Authenticate the payment
+        dto.setExternalProcess(true);
         final AuthenticationResponse authResult = authService.authenticatePrePayment(dto);
         if (!authResult.isStatus()) {
             return authResult ;
